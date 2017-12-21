@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.linalg import matrix_rank, det, inv
+from numpy.linalg import matrix_rank, det, inv, norm
 
 
 mat_rank_1 = np.matrix('1    2    3;'
@@ -19,7 +19,15 @@ l = np.eye(3, 3) * 0.1
 
 with_bias = mat_rank_1 + l
 
-wbTwb = np.dot(with_bias.T, with_bias)
+wbTwb = np.dot(mat_rank_1.T, mat_rank_1) + l
 print wbTwb, "has determinant", det(wbTwb), "and rank", matrix_rank(wbTwb)
 
 print inv(wbTwb)
+
+print "norm of original matrix", norm(with_bias)
+print "norm of inverse of original matrix", norm(inv(with_bias))
+print "Condition number", norm(with_bias) * norm(inv(with_bias))
+print
+print "norm of original matrix", norm(wbTwb)
+print "norm of inverse of original matrix", norm(inv(wbTwb))
+print "Condition number", norm(wbTwb) * norm(inv(wbTwb))
