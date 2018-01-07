@@ -18,15 +18,6 @@ def eigenfaces(x):
     v /= np.linalg.norm(v, axis=0)
     # return evals, evecs, C, v
     return v, X, evecs
-    # centred = x - np.mean(x, axis=0)
-    # covariance_matrix = np.dot(centred, centred.T)
-    # evals, evecs = np.linalg.eig(covariance_matrix)
-    # idx = np.argsort(evals)[::-1]
-    # evecs = evecs[:,idx]
-    # evals = evals[idx]
-    # v = np.dot(x.T, evecs)
-    # v /= np.linalg.norm(v, axis=0)
-    # return evals, evecs, centred, v
 
 
 def plot_3d_matrix(m, ax, col):
@@ -54,9 +45,9 @@ if __name__ == "__main__":
 
     # print "vt\n", vt
     # print "X.vt.T.S^-1\n", np.dot(X, np.dot(vt.T, np.linalg.inv(S))) # same as X * vt.T just scaled by S^-1
-    via_svd = np.dot(X, vt.T)
-    print "X.vt.T\n", via_svd
-    print "X.vt\n", np.dot(X, vt)
+    # via_svd = np.dot(X, vt.T)
+    # print "X.vt.T\n", via_svd
+    print "X.\n", np.dot(X, vt)
     # Exactly the same:
     # print "vt.T", vt.T
     # print "vt^-1", np.linalg.inv(vt)
@@ -65,15 +56,16 @@ if __name__ == "__main__":
     ax = fig.add_subplot(111, projection='3d')
     # plot_3d_matrix(via_svd, ax, "red")
 
-    plot_3d_matrix(evecs, ax, "green")
-    plot_3d_matrix(u, ax, "grey")
+    # plot_3d_matrix(evecs, ax, "green")
+    # plot_3d_matrix(u, ax, "grey")
 
     # plot_3d_matrix(vt.T, ax, "grey")
     # plot_3d_matrix(u, ax, "magenta") # same as X * vt.T
 
-    #  so x.v ~= X.u
+    #  so x.v ~= x.u
     plot_3d_matrix(res, ax, "blue")
-    plot_3d_matrix(np.dot(X, u), ax, "magenta") # same as X * vt.T
+    plot_3d_matrix(np.dot(x, u), ax, "magenta") # in the same plane as res
+    # plot_3d_matrix(np.dot(X, u), ax, "magenta") # same as X * vt.T
 
     plt.show()
     # Axes3D.plot()
