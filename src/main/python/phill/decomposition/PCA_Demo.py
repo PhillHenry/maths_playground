@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # print "X.vt.T.S^-1\n", np.dot(X, np.dot(vt.T, np.linalg.inv(S))) # same as X * vt.T just scaled by S^-1
     # via_svd = np.dot(X, vt.T)
     # print "X.vt.T\n", via_svd
-    print "X.\n", np.dot(X, vt)
+    print "X.u\n", np.dot(X, u)
     # Exactly the same:
     # print "vt.T", vt.T
     # print "vt^-1", np.linalg.inv(vt)
@@ -56,6 +56,8 @@ if __name__ == "__main__":
     ax = fig.add_subplot(111, projection='3d')
     # plot_3d_matrix(via_svd, ax, "red")
 
+    orig_evals, orig_evacs = np.linalg.eig(X)
+    # plot_3d_matrix(orig_evacs, ax, "blue")
     # plot_3d_matrix(evecs, ax, "green")
     # plot_3d_matrix(u, ax, "grey")
 
@@ -66,6 +68,8 @@ if __name__ == "__main__":
     plot_3d_matrix(res, ax, "blue")
     plot_3d_matrix(np.dot(x, u), ax, "magenta") # in the same plane as res
     # plot_3d_matrix(np.dot(X, u), ax, "magenta") # same as X * vt.T
+    # Conclusion: if we take u,s,VT via SVD of the covariance matrix, C, and the eigenvectors of C (call them v) then C.u = C.v
+    # the point is that both SVD and eigendecomposition is on the *covariance* matrix not the original matrix.
 
     plt.show()
     # Axes3D.plot()
