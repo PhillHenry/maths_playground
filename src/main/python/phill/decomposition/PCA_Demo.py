@@ -1,11 +1,14 @@
 import numpy as np
 import sklearn as sk
 from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 
 
 # see https://stackoverflow.com/questions/47358216/pca-difference-between-python-numpy-and-sklearn
 def eigenfaces(x):
-    X = x - np.mean(x, axis = 0)
+    X = x - np.mean(x, axis = 0) # NB Python seems to be pass by reference
     C = np.dot(X, X.T)
     evals , evecs = np.linalg.eig(C)
     idx = np.argsort(evals)[::-1]
@@ -14,7 +17,7 @@ def eigenfaces(x):
     v = np.dot(X.T, evecs)
     v /= np.linalg.norm(v, axis=0)
     # return evals, evecs, C, v
-    return v, X
+    return v, X, evecs
     # centred = x - np.mean(x, axis=0)
     # covariance_matrix = np.dot(centred, centred.T)
     # evals, evecs = np.linalg.eig(covariance_matrix)
@@ -26,6 +29,13 @@ def eigenfaces(x):
     # return evals, evecs, centred, v
 
 
+def plot_3d_matrix(m, ax, col):
+    for i in range(np.shape(m)[1]):
+        v = m[:,i]
+        print "v", v
+        ax.plot([0, v[0]], [0, v[1]], zs=[0, v[2]], color=col)
+
+
 if __name__ == "__main__":
     X = np.random.rand(3,3)
     u, s, vt = np.linalg.svd(X, full_matrices=0)
@@ -33,7 +43,7 @@ if __name__ == "__main__":
     S = np.diag(s)
     print "u s v\n", np.dot(u, np.dot(S, vt))
     print "X", np.shape(X), "u", np.shape(u), "S", np.shape(S), "vt", np.shape(vt)
-    v, x = eigenfaces(X)
+    v, x, evecs = eigenfaces(X)
     print "x.v\n", x.dot(v)
     # print "eigenvectors\n", np.shape(evecs)
     print "v\n", np.shape(v)
@@ -43,10 +53,28 @@ if __name__ == "__main__":
     print "sklearn\n", res
 
     # print "vt\n", vt
-    print "X.vt.T.S^-1\n", np.dot(X, np.dot(vt.T, np.linalg.inv(S)))
-    print "X.vt.T\n", np.dot(X, vt.T)
+    # print "X.vt.T.S^-1\n", np.dot(X, np.dot(vt.T, np.linalg.inv(S))) # same as X * vt.T just scaled by S^-1
+    via_svd = np.dot(X, vt.T)
+    print "X.vt.T\n", via_svd
+    print "X.vt\n", np.dot(X, vt)
     # Exactly the same:
     # print "vt.T", vt.T
     # print "vt^-1", np.linalg.inv(vt)
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    # plot_3d_matrix(via_svd, ax, "red")
+
+    plot_3d_matrix(evecs, ax, "green")
+    plot_3d_matrix(u, ax, "grey")
+
+    # plot_3d_matrix(vt.T, ax, "grey")
+    # plot_3d_matrix(u, ax, "magenta") # same as X * vt.T
+
+    #  so x.v ~= X.u
+    plot_3d_matrix(res, ax, "blue")
+    plot_3d_matrix(np.dot(X, u), ax, "magenta") # same as X * vt.T
+
+    plt.show()
+    # Axes3D.plot()
 

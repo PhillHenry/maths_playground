@@ -8,12 +8,14 @@ mat_rank_1 = np.matrix('1    2    3;'
 
 print mat_rank_1, "has rank ", matrix_rank(mat_rank_1)  # it is indeed 1
 
-mTm = np.dot(mat_rank_1, mat_rank_1)
+mTm = np.dot(mat_rank_1.T, mat_rank_1)
+
+print mTm, "has rank", matrix_rank(mTm)
 
 print "\ndeterminant of rank 1 matrix multiplied by its transpose:", det(mTm)  # and not too surprisingly, it's 0
 
 # this blows up with "numpy.linalg.linalg.LinAlgError: Singular matrix"
-# inv(mmt)
+#inv(mTm)
 
 l = np.eye(3, 3) * 0.1
 
@@ -30,4 +32,5 @@ print "Condition number", norm(with_bias) * norm(inv(with_bias))
 print
 print "norm of original matrix", norm(wbTwb)
 print "norm of inverse of original matrix", norm(inv(wbTwb))
+# 4406.048356 according to http://calculator.vhex.net/calculator/linear-algebra/condition-number-of-a-matrix
 print "Condition number", norm(wbTwb) * norm(inv(wbTwb))
