@@ -17,14 +17,22 @@ def eigenfaces(x):
     v = np.dot(X.T, evecs)
     v /= np.linalg.norm(v, axis=0)
     # return evals, evecs, C, v
-    return v, X, evecs
+    return v, X, evecs, evals
 
 
 def plot_3d_matrix(m, ax, col):
     for i in range(np.shape(m)[1]):
-        v = m[:,i]
+        v = m[:, i]
         print "v", v
         ax.plot([0, v[0]], [0, v[1]], zs=[0, v[2]], color=col)
+
+
+def scaled(vectors, values):
+    scaled_vectors = np.zeros(np.shape(vectors))
+    for i in range(np.shape(vectors)[1]):
+        v = vectors[:, i] * values[i]
+        scaled_vectors[:, i] = v
+    return scaled_vectors
 
 
 if __name__ == "__main__":
@@ -34,9 +42,10 @@ if __name__ == "__main__":
     S = np.diag(s)
     print "u s v\n", np.dot(u, np.dot(S, vt))
     print "X", np.shape(X), "u", np.shape(u), "S", np.shape(S), "vt", np.shape(vt)
-    v, x, evecs = eigenfaces(X)
+    v, x, evecs, evals = eigenfaces(X)
     print "x.v\n", x.dot(v)
     # print "eigenvectors\n", np.shape(evecs)
+    print "eigenvalues", evals
     print "v\n", np.shape(v)
 
     pca = PCA(n_components=3).fit(X)
@@ -57,7 +66,7 @@ if __name__ == "__main__":
     # plot_3d_matrix(via_svd, ax, "red")
 
     orig_evals, orig_evacs = np.linalg.eig(X)
-    # plot_3d_matrix(orig_evacs, ax, "blue")
+    # plot_3d_matrix(orig_evacs, ax, "grey")
     # plot_3d_matrix(evecs, ax, "green")
     # plot_3d_matrix(u, ax, "grey")
 
@@ -66,6 +75,7 @@ if __name__ == "__main__":
 
     #  so x.v ~= x.u
     plot_3d_matrix(res, ax, "blue")
+    plot_3d_matrix(scaled(evecs, evals), ax, "green")
     plot_3d_matrix(np.dot(x, u), ax, "magenta") # in the same plane as res
     # plot_3d_matrix(np.dot(X, u), ax, "magenta") # same as X * vt.T
     # Conclusion: if we take u,s,VT via SVD of the covariance matrix, C, and the eigenvectors of C (call them v) then C.u = C.v
