@@ -67,15 +67,16 @@ if __name__ == "__main__":
     orig_evals, orig_evecs = np.linalg.eig(X)
     ax2 = fig.add_subplot(211, projection='3d')
     plot_3d_matrix(X, ax2, "blue")
-    plot_3d_matrix(scaled(orig_evecs, orig_evals), ax2, "red")
+    scaled_orig_evecs = scaled(orig_evecs, orig_evals)
+    plot_3d_matrix(scaled_orig_evecs, ax2, "red")
     # ax2.text(3, 8, 'eigenvectors', style='italic', bbox={'facecolor':'red', 'alpha':0.5, 'pad':10} )
     # ax2.text(3, 8, None, 'eigenvectors', 'italic')
     ax2.set_title('Original')
-    ax2.text(0.1, 1, 0.1, 'Eigenvectors',
-            transform=ax2.transAxes,
+    ax2.text(scaled_orig_evecs[0, 0], scaled_orig_evecs[1, 0], scaled_orig_evecs[2, 0], 'Eigenvectors',
+            # transform=ax2.transAxes,
             color='red', fontsize=10)
-    ax2.text(0.1, 1, 1, 'Vectors',
-            transform=ax2.transAxes,
+    ax2.text(X[0, 0], X[1, 0], X[2, 0], 'Vectors',
+            # transform=ax2.transAxes,
             color='blue', fontsize=10)
 
     ax = fig.add_subplot(212, projection='3d')
@@ -91,15 +92,20 @@ if __name__ == "__main__":
     # plot_3d_matrix(u, ax, "magenta") # same as X * vt.T
 
     #  so x.v ~= x.u
+    C_u = np.dot(C, u)
+    scaled_evecs = scaled(evecs, evals)
     plot_3d_matrix(res, ax, "blue")
-    plot_3d_matrix(scaled(evecs, evals), ax, "green")
-    plot_3d_matrix(np.dot(C, u), ax, "magenta")  # in the same plane as res
+    plot_3d_matrix(scaled_evecs, ax, "green")
+    plot_3d_matrix(C_u, ax, "magenta")  # in the same plane as res
 
 
-    ax.text(0.1, 1, 0.1, 'Eigenfaces',
+    ax.text(res[0, 0], res[1, 0], res[2, 0], 'Eigenfaces',
              # transform=ax.transAxes,
              color='green', fontsize=10)
-    ax.text(0.1, 1, 0.5, 'SVD',
+    ax.text(scaled_evecs[0, 0], scaled_evecs[1, 0], scaled_evecs[2, 0], 'sklearn',
+             # transform=ax.transAxes,
+             color='blue', fontsize=10)
+    ax.text(C_u[0, 0], C_u[1, 0], C_u[2, 0], 'SVD',
              # transform=ax.transAxes,
              color='magenta', fontsize=10)
     # ax.text(0.1, 1, 13, 'sklearn',
