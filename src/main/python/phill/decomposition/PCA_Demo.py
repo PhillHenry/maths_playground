@@ -17,7 +17,7 @@ def eigenfaces(x):
     v = np.dot(X.T, evecs)
     v /= np.linalg.norm(v, axis=0)
     # return evals, evecs, C, v
-    return v, X, evecs, evals
+    return v, X, evecs, evals, C
 
 
 def plot_3d_matrix(m, ax, col):
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     S = np.diag(s)
     print "u s v\n", np.dot(u, np.dot(S, vt))
     print "X", np.shape(X), "u", np.shape(u), "S", np.shape(S), "vt", np.shape(vt)
-    v, x, evecs, evals = eigenfaces(X)
+    v, x, evecs, evals, C = eigenfaces(X)
     print "x.v\n", x.dot(v)
     # print "eigenvectors\n", np.shape(evecs)
     print "eigenvalues", evals
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     #  so x.v ~= x.u
     plot_3d_matrix(res, ax, "blue")
     plot_3d_matrix(scaled(evecs, evals), ax, "green")
-    plot_3d_matrix(np.dot(x, u), ax, "magenta")  # in the same plane as res
+    plot_3d_matrix(np.dot(C, u), ax, "magenta")  # in the same plane as res
 
 
     ax.text(0.1, 1, 0.1, 'Eigenfaces',
