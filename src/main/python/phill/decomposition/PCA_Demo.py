@@ -45,7 +45,6 @@ if __name__ == "__main__":
     print "X", np.shape(X), "u", np.shape(u), "S", np.shape(S), "vt", np.shape(vt)
     v, x, evecs, evals, C = eigenfaces(X)
     print "x.v\n", x.dot(v)
-    # print "eigenvectors\n", np.shape(evecs)
     print "eigenvalues", evals
     print "v\n", np.shape(v)
 
@@ -53,45 +52,31 @@ if __name__ == "__main__":
     res = pca.transform(X)
     print "sklearn\n", res
 
-    # print "vt\n", vt
-    # print "X.vt.T.S^-1\n", np.dot(X, np.dot(vt.T, np.linalg.inv(S))) # same as X * vt.T just scaled by S^-1
-    # via_svd = np.dot(X, vt.T)
-    # print "X.vt.T\n", via_svd
     print "X.u\n", np.dot(X, u)
-    # Exactly the same:
-    # print "vt.T", vt.T
-    # print "vt^-1", np.linalg.inv(vt)
 
     fig = plt.figure()
 
     orig_evals, orig_evecs = np.linalg.eig(X)
     ax2 = fig.add_subplot(211, projection='3d')
     plot_3d_matrix(X, ax2, "blue")
+
     scaled_orig_evecs = scaled(orig_evecs, orig_evals)
     plot_3d_matrix(scaled_orig_evecs, ax2, "red")
-    # ax2.text(3, 8, 'eigenvectors', style='italic', bbox={'facecolor':'red', 'alpha':0.5, 'pad':10} )
-    # ax2.text(3, 8, None, 'eigenvectors', 'italic')
+
+    plot_3d_matrix(C, ax2, "green")
+
+
     ax2.set_title('Original')
     ax2.text(scaled_orig_evecs[0, 0], scaled_orig_evecs[1, 0], scaled_orig_evecs[2, 0], 'Eigenvectors',
-            # transform=ax2.transAxes,
             color='red', fontsize=10)
     ax2.text(X[0, 0], X[1, 0], X[2, 0], 'Vectors',
-            # transform=ax2.transAxes,
             color='blue', fontsize=10)
+    ax2.text(C[0, 0], C[1, 0], C[2, 0], 'Covariance',
+            color='green', fontsize=10)
 
     ax = fig.add_subplot(212, projection='3d')
     ax.set_title('Covariance')
-    # ax = Axes3D(fig)
-    # plot_3d_matrix(via_svd, ax, "red")
 
-    # plot_3d_matrix(orig_evacs, ax, "grey")
-    # plot_3d_matrix(evecs, ax, "green")
-    # plot_3d_matrix(u, ax, "grey")
-
-    # plot_3d_matrix(vt.T, ax, "grey")
-    # plot_3d_matrix(u, ax, "magenta") # same as X * vt.T
-
-    #  so x.v ~= x.u
     C_u = np.dot(C, u)
     scaled_evecs = scaled(evecs, evals)
     plot_3d_matrix(res, ax, "blue")
@@ -99,14 +84,12 @@ if __name__ == "__main__":
     plot_3d_matrix(C_u, ax, "magenta")  # in the same plane as res
 
 
-    ax.text(res[0, 0], res[1, 0], res[2, 0], 'Eigenfaces',
-             # transform=ax.transAxes,
+# https://matplotlib.org/users/text_intro.html
+    ax.text(res[0, 0], res[1, 0], res[2, 0], 'sklearn',
              color='green', fontsize=10)
-    ax.text(scaled_evecs[0, 0], scaled_evecs[1, 0], scaled_evecs[2, 0], 'sklearn',
-             # transform=ax.transAxes,
+    ax.text(scaled_evecs[0, 0], scaled_evecs[1, 0], scaled_evecs[2, 0], 'Eigenfaces',
              color='blue', fontsize=10)
     ax.text(C_u[0, 0], C_u[1, 0], C_u[2, 0], 'SVD',
-             # transform=ax.transAxes,
              color='magenta', fontsize=10)
     # ax.text(0.1, 1, 13, 'sklearn',
     #          transform=ax2.transAxes,
