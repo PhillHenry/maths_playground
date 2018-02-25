@@ -4,6 +4,7 @@ from scipy import optimize
 from scipy.special import erfinv
 import numpy as np
 
+# see https://jakevdp.github.io/blog/2014/06/12/frequentism-and-bayesianism-3-confidence-credibility/
 
 def approx_CI(D, sig=0.95):
     """Approximate truncated exponential confidence interval"""
@@ -60,8 +61,8 @@ def bayes_CR_mu(D, sigma, frac=0.95):
 
 
 if __name__ == "__main__":
-    N = 5
-    Nsamp = 10 ** 6
+    N = 5000
+    Nsamp = 1
     sigma_x = 2
 
     np.random.seed(0)
@@ -72,7 +73,8 @@ if __name__ == "__main__":
 
     sig_samp = sigma_x * N ** -0.5
 
-    print("{0:.3f} should equal {1:.3f}".format(np.std(mu_samp), sig_samp))
+    # print("{0:.3f} should equal {1:.3f}".format(np.std(mu_samp), sig_samp))
+    print("{0:.3f} should equal {1:.3f}".format(np.std(x), sig_samp))
 
     true_B = 100
     sigma_x = 10

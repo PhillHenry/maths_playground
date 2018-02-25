@@ -10,6 +10,7 @@ from mpl_toolkits.mplot3d import Axes3D
 def eigenfaces(x):
     X = x - np.mean(x, axis = 0) # NB Python seems to be pass by reference
     C = np.dot(X, X.T)
+    # C = np.dot(X.T, X)
     evals , evecs = np.linalg.eig(C)
     idx = np.argsort(evals)[::-1]
     evecs = evecs[:,idx]
@@ -23,7 +24,7 @@ def eigenfaces(x):
 def plot_3d_matrix(m, ax, col):
     for i in range(np.shape(m)[1]):
         v = m[:, i]
-        print "v", v
+        # print "v", v
         ax.plot([0, v[0]], [0, v[1]], zs=[0, v[2]], color=col)
         # ax.quiver(0, 0, 0, v[0], v[1], v[2]) # see https://gist.github.com/sytrus-in-github/a3b2ef4414fb144cb08505a060c99b18
 
@@ -39,20 +40,20 @@ def scaled(vectors, values):
 if __name__ == "__main__":
     X = np.random.rand(3,3)
     u, s, vt = np.linalg.svd(X, full_matrices=0)
-    print "X\n", X
+    # print "X\n", X
     S = np.diag(s)
-    print "u s v\n", np.dot(u, np.dot(S, vt))
-    print "X", np.shape(X), "u", np.shape(u), "S", np.shape(S), "vt", np.shape(vt)
+    # print "u s v\n", np.dot(u, np.dot(S, vt))
+    # print "X", np.shape(X), "u", np.shape(u), "S", np.shape(S), "vt", np.shape(vt)
     v, x, evecs, evals, C = eigenfaces(X)
-    print "x.v\n", x.dot(v)
-    print "eigenvalues", evals
-    print "v\n", np.shape(v)
+    # print "x.v\n", x.dot(v)
+    # print "eigenvalues", evals
+    # print "v\n", np.shape(v)
 
     pca = PCA(n_components=3).fit(X)
     res = pca.transform(X)
-    print "sklearn\n", res
+    # print "sklearn\n", res
 
-    print "X.u\n", np.dot(X, u)
+    # print "X.u\n", np.dot(X, u)
 
     fig = plt.figure()
 
@@ -79,17 +80,22 @@ if __name__ == "__main__":
 
     C_u = np.dot(C, u)
     scaled_evecs = scaled(evecs, evals)
+    eFaces = np.dot(C, scaled_evecs)
     plot_3d_matrix(res, ax, "blue")
-    plot_3d_matrix(scaled_evecs, ax, "green")
+    plot_3d_matrix(eFaces, ax, "green")
     plot_3d_matrix(C_u, ax, "magenta")  # in the same plane as res
+
+    print "C E\n", eFaces
+    print "C U\n", C_u
+    print "s\n", s
 
 
 # https://matplotlib.org/users/text_intro.html
     ax.text(res[0, 0], res[1, 0], res[2, 0], 'sklearn',
              color='green', fontsize=10)
-    ax.text(scaled_evecs[0, 0], scaled_evecs[1, 0], scaled_evecs[2, 0], 'Eigenfaces',
+    ax.text(eFaces[0, 0], eFaces[1, 0], eFaces[2, 0], 'Eigenfaces',
              color='blue', fontsize=10)
-    ax.text(C_u[0, 0], C_u[1, 0], C_u[2, 0], 'SVD',
+    ax.text(C_u[0, 0], C_u[1, 0], C_u[2, 0], 'C U',
              color='magenta', fontsize=10)
     # ax.text(0.1, 1, 13, 'sklearn',
     #          transform=ax2.transAxes,
