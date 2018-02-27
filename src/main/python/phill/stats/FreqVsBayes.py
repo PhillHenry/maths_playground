@@ -39,7 +39,7 @@ def exact_CI(D, frac=0.95):
     guess = approx_CI(D, 0.68) # use 1-sigma interval as a guess
     result = optimize.root(eqns, guess, args=(D,))
     if not result.success:
-        print "warning: CI result did not converge!"
+        print("warning: CI result did not converge!")
     return result.x
 
 

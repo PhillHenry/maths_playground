@@ -85,9 +85,9 @@ if __name__ == "__main__":
     plot_3d_matrix(eFaces, ax, "green")
     plot_3d_matrix(C_u, ax, "magenta")  # in the same plane as res
 
-    print "C E\n", eFaces
-    print "C U\n", C_u
-    print "s\n", s
+    print("C E\n", eFaces)
+    print("C U\n", C_u)
+    print("s\n", s)
 
 
 # https://matplotlib.org/users/text_intro.html

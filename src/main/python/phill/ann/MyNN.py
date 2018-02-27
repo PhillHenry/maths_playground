@@ -2,7 +2,8 @@ import numpy as np
 
 def f_softmax(X):
     Z = np.sum(np.exp(X), axis=1)
-    # print "\n\nZ =", Z, "\n\n"
+    #print("\n\nZ =", Z, "\n\n")
+    print("X shape", X.shape, "Z shape", Z.shape) # X shape (4, 2) Z shape (4, 1)
     Z = Z.reshape(Z.shape[0], 1)
     # print "\n\nZ =", Z, "\n\n"
     return np.exp(X) / Z
@@ -150,5 +151,5 @@ for i in range(0, 500):
     weightsLayer2 = weightsLayer2 - (learning_rate * _1_W)
 
 
-print softmaxed
-print labels
+#print softmaxed
+#print labels
