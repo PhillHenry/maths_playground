@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     print("output shape ", output.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", hidden_dim)
 
-    epoch = 10
+    epoch = 10000
 
     loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y, output))))
 
@@ -108,6 +108,9 @@ if __name__ == '__main__':
     train_op = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
 
     batch_size = 10
+
+    predictions_correct = tf.subtract(tf.constant(1.), tf.square(tf.reduce_mean(tf.subtract(y, output))))  #tf.cast(tf.equal(output, y), tf.float32)
+    accuracy = tf.reduce_mean(predictions_correct)
 
     def one_hot(indxs):
         ys = []
@@ -126,9 +129,13 @@ if __name__ == '__main__':
             rand_index = np.random.choice(texts_train.shape[0], size=batch_size)
             rand_x = texts_train[rand_index].todense()
             rand_y = one_hot(rand_index)
-            print("rand_x shape", rand_x.shape, "rand_y shape", rand_y.shape)
+            # print("rand_x shape", rand_x.shape, "rand_y shape", rand_y.shape)
             f_dict = {x: rand_x, y: rand_y}
             sess.run([loss, train_op], feed_dict=f_dict)
+            if (i+1)%500==0:
+                train_acc_temp = sess.run(accuracy, feed_dict=f_dict)
+                train_loss_temp = sess.run(loss, feed_dict=f_dict)
+                print("accuracy", train_acc_temp, "loss", train_loss_temp)
 
     print("trained")
 
