@@ -54,18 +54,23 @@ def clean_text(texts):
     return texts
 
 
-if __name__ == '__main__':
+def parse_file():
     sub_2_indx = zip_with_index(subjects)
     sub_2_lines = {}
     lines = []
     targets = []
     for (x, i) in sub_2_indx.items():
         print(i, x)
-        subjects = read_lines("/home/henryp/Code/Temp/" + x + ".txt")
-        lines += subjects
+        subject_lines = read_lines("/home/henryp/Code/Temp/" + x + ".txt")
+        lines += subject_lines
         sub_2_lines[x] = lines
-        targets += [i] * len(subjects)
+        targets += [i] * len(subject_lines)
     print(len(lines))
+    return (lines, targets)
+
+
+if __name__ == '__main__':
+    (lines, targets) = parse_file()
     n_features = 9000
     tfidf = TfidfVectorizer(tokenizer=tokenizer, stop_words='english', max_features=n_features)
     text = clean_text(lines)
@@ -85,18 +90,18 @@ if __name__ == '__main__':
 
 #    print("sparse_tfidf_texts shape = " + np.shape(sparse_tfidf_texts))
 
-    hidden_dim = n_features
-    x = tf.placeholder(dtype=tf.float32, shape=[None, n_features])
+    hidden_dim = len(subjects)
+    x = tf.placeholder(dtype=tf.float32, shape=[None, n_features], name="x")
+    y = tf.placeholder(dtype=tf.float32, shape=[None, hidden_dim], name="y")
     weights = tf.Variable(tf.random_normal([n_features, hidden_dim], dtype=tf.float32), name='weights')
     biases = tf.Variable(tf.zeros([hidden_dim]), name='biases')
     output = tf.nn.tanh(tf.matmul(x, weights) + biases)
 
-    print("output shape ", output.shape)
-    print("x shape ", x.shape)
+    print("output shape ", output.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", hidden_dim)
 
     epoch = 10
 
-    loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(x, output))))
+    loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y, output))))
 
     learning_rate = 0.0125
 
@@ -104,16 +109,25 @@ if __name__ == '__main__':
 
     batch_size = 10
 
+    def one_hot(indxs):
+        ys = []
+        for i in indxs:
+            bit = targets[i]
+            # y = np.zeros(shape=[1, hidden_dim])
+            # y[0, ] = 1.
+            y = [0.] * hidden_dim
+            y[bit] = 1.
+            ys.append(y)
+        return np.matrix(ys)
+
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         for i in range(epoch):
-            # for j in target_test_ids:
-            #     datum = texts_test[j]
-            #     print("datum", datum, "type", type(datum))
-            #     l, _ = sess.run([loss, train_op], feed_dict={x: datum})
             rand_index = np.random.choice(texts_train.shape[0], size=batch_size)
             rand_x = texts_train[rand_index].todense()
-            f_dict = {x: rand_x}
+            rand_y = one_hot(rand_index)
+            print("rand_x shape", rand_x.shape, "rand_y shape", rand_y.shape)
+            f_dict = {x: rand_x, y: rand_y}
             sess.run([loss, train_op], feed_dict=f_dict)
 
     print("trained")
