@@ -55,6 +55,13 @@ def clean_text(texts):
 
 
 def parse_file():
+    """
+    Prepare your files from the "20 newsgroups" data with:
+
+    for DIR in `ls 20news-18828` ; do { echo $DIR ; head -2 20news-18828/$DIR/* | grep ^Subject | perl -pe s/^Subject:\ //g > $DIR.txt ; } done
+
+    :return: a tuple of all the subject texts and all the correct group IDs
+    """
     sub_2_indx = zip_with_index(subjects)
     sub_2_lines = {}
     lines = []
@@ -80,8 +87,6 @@ if __name__ == '__main__':
 
     train_indices = np.random.choice(sparse_tfidf_texts.shape[0], round(0.8*sparse_tfidf_texts.shape[0]), replace=False)
     test_indices = np.array(list(set(range(sparse_tfidf_texts.shape[0])) - set(train_indices)))
-    #texts_train = sparse_tfidf_texts[train_indices]
-    #texts_test = sparse_tfidf_texts[test_indices]
 
 #    print("sparse_tfidf_texts shape = " + np.shape(sparse_tfidf_texts))
 
