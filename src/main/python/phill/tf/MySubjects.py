@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     batch_size = 10
 
-    predictions_correct = tf.subtract(tf.constant(1.), tf.square(tf.reduce_mean(tf.subtract(y, output))))  #tf.cast(tf.equal(output, y), tf.float32)
+    predictions_correct = tf.subtract(tf.constant(1.), tf.squared_difference(y, output))  #tf.cast(tf.equal(output, y), tf.float32)
     accuracy = tf.reduce_mean(predictions_correct)
 
     def one_hot(indxs):
@@ -132,11 +132,13 @@ if __name__ == '__main__':
             # print("rand_x shape", rand_x.shape, "rand_y shape", rand_y.shape)
             f_dict = {x: rand_x, y: rand_y}
             sess.run([loss, train_op], feed_dict=f_dict)
-            if (i+1)%500==0:
+            if (i+1)%100==0:
                 train_acc_temp = sess.run(accuracy, feed_dict=f_dict)
                 train_loss_temp = sess.run(loss, feed_dict=f_dict)
                 print("accuracy", train_acc_temp, "loss", train_loss_temp)
 
-    print("trained")
+        print("trained")
+
+        # TODO check the training with test data
 
 
