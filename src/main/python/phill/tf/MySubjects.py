@@ -104,8 +104,10 @@ if __name__ == '__main__':
 
     batch_size = 10
 
-    predictions_correct = tf.subtract(tf.constant(1.), tf.squared_difference(y, output))  #tf.cast(tf.equal(output, y), tf.float32)
-    accuracy = tf.reduce_mean(predictions_correct)
+    # see https://stackoverflow.com/questions/42607930/how-to-compute-accuracy-of-cnn-in-tensorflow
+    prediction = tf.argmax(output, 1)
+    equality = tf.equal(prediction, tf.argmax(y, 1))
+    accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))
 
     def one_hot(indxs):
         ys = []
