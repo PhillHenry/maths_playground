@@ -76,13 +76,13 @@ def parse_file():
     return lines, targets
 
 
-def neural_net(n_features, hidden_dim):
-    x = tf.placeholder(dtype=tf.float32, shape=[None, n_features], name="x")
-    y = tf.placeholder(dtype=tf.float32, shape=[None, hidden_dim], name="y")
-    weights = tf.Variable(tf.random_normal([n_features, hidden_dim], dtype=tf.float32), name='weights')
-    biases = tf.Variable(tf.zeros([hidden_dim]), name='biases')
+def neural_net(n_in, n_out):
+    x = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
+    y = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
+    weights = tf.Variable(tf.random_normal([n_in, n_out], dtype=tf.float32), name='weights')
+    biases = tf.Variable(tf.zeros([n_out]), name='biases')
     out = tf.nn.tanh(tf.matmul(x, weights) + biases)
-    print("out shape ", out.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", hidden_dim)
+    print("out shape ", out.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", n_out)
     return x, out, y
 
 
@@ -112,7 +112,12 @@ def do_tf_idf(n_features):
     return tf_idf_matrix, targets
 
 
-#def accuracy_fn():
+def accuracy_fn():
+    # see https://stackoverflow.com/questions/42607930/how-to-compute-accuracy-of-cnn-in-tensorflow
+    prediction = tf.argmax(out, 1)
+    equality = tf.equal(prediction, tf.argmax(y, 1))
+    accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))
+    return accuracy
 
 
 if __name__ == '__main__':
@@ -134,10 +139,7 @@ if __name__ == '__main__':
 
     batch_size = 10
 
-    # see https://stackoverflow.com/questions/42607930/how-to-compute-accuracy-of-cnn-in-tensorflow
-    prediction = tf.argmax(out, 1)
-    equality = tf.equal(prediction, tf.argmax(y, 1))
-    accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))
+    accuracy = accuracy_fn()
 
     with tf.Session() as sess:
         print("training...")
