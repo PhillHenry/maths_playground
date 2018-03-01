@@ -76,7 +76,7 @@ def parse_file():
     return lines, targets
 
 
-def neural_net(hidden_dim):
+def neural_net(n_features, hidden_dim):
     x = tf.placeholder(dtype=tf.float32, shape=[None, n_features], name="x")
     y = tf.placeholder(dtype=tf.float32, shape=[None, hidden_dim], name="y")
     weights = tf.Variable(tf.random_normal([n_features, hidden_dim], dtype=tf.float32), name='weights')
@@ -93,7 +93,7 @@ def optimiser_loss(actual, expected):
     return optimizer, loss_fn
 
 
-def one_hot(indxs, hidden_dim):
+def one_hot(indxs, hidden_dim, targets):
     ys = []
     for i in indxs:
         bit = targets[i]
@@ -103,22 +103,30 @@ def one_hot(indxs, hidden_dim):
     return np.matrix(ys)
 
 
-if __name__ == '__main__':
+def do_tf_idf(n_features):
     (lines, targets) = parse_file()
-    n_features = 9000
     tfidf = TfidfVectorizer(tokenizer=tokenizer, stop_words='english', max_features=n_features)
     text = clean_text(lines)
     print("Number of lines", len(lines), "number of targest", len(targets))
-    sparse_tfidf_texts = tfidf.fit_transform(text)
+    tf_idf_matrix = tfidf.fit_transform(text)
+    return tf_idf_matrix, targets
+
+
+#def accuracy_fn():
+
+
+if __name__ == '__main__':
+    n_features = 9000
+    (sparse_tfidf_texts, targets) = do_tf_idf(n_features)
 
     train_indices = np.random.choice(sparse_tfidf_texts.shape[0], round(0.8*sparse_tfidf_texts.shape[0]), replace=False)
     test_indices = np.array(list(set(range(sparse_tfidf_texts.shape[0])) - set(train_indices)))
 
-#    print("sparse_tfidf_texts shape = " + np.shape(sparse_tfidf_texts))
+    #    print("sparse_tfidf_texts shape = " + np.shape(sparse_tfidf_texts))
 
     hidden_dim = len(subjects)
 
-    (x, out, y) = neural_net(hidden_dim)
+    (x, out, y) = neural_net(n_features, hidden_dim)
 
     epoch = 10000
 
@@ -137,7 +145,7 @@ if __name__ == '__main__':
         for i in range(epoch):
             rand_index = np.random.choice(train_indices, size=batch_size)
             rand_x = sparse_tfidf_texts[rand_index].todense()
-            rand_y = one_hot(rand_index, hidden_dim)
+            rand_y = one_hot(rand_index, hidden_dim, targets)
             # print("rand_x shape", rand_x.shape, "rand_y shape", rand_y.shape)
             f_dict = {x: rand_x, y: rand_y}
             sess.run([loss, train_op], feed_dict=f_dict)
@@ -148,7 +156,7 @@ if __name__ == '__main__':
 
         print("trained")
         print("Calculating accuracy on test data...")
-        overall_accuracy = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: one_hot(test_indices, hidden_dim)})
+        overall_accuracy = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: one_hot(test_indices, hidden_dim, targets)})
         print("accuracy", overall_accuracy)
 
         # TODO check the training with test data
