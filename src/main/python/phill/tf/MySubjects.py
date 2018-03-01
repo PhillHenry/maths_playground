@@ -127,16 +127,13 @@ if __name__ == '__main__':
     train_indices = np.random.choice(sparse_tfidf_texts.shape[0], round(0.8*sparse_tfidf_texts.shape[0]), replace=False)
     test_indices = np.array(list(set(range(sparse_tfidf_texts.shape[0])) - set(train_indices)))
 
-    #    print("sparse_tfidf_texts shape = " + np.shape(sparse_tfidf_texts))
+    output_size = len(subjects)
 
-    hidden_dim = len(subjects)
+    (x, out, y) = neural_net(n_features, output_size)
 
-    (x, out, y) = neural_net(n_features, hidden_dim)
+    (optimizer, loss) = optimiser_loss(out, y)
 
     epoch = 10000
-
-    (train_op, loss) = optimiser_loss(out, y)
-
     batch_size = 10
 
     accuracy = accuracy_fn()
@@ -147,20 +144,14 @@ if __name__ == '__main__':
         for i in range(epoch):
             rand_index = np.random.choice(train_indices, size=batch_size)
             rand_x = sparse_tfidf_texts[rand_index].todense()
-            rand_y = one_hot(rand_index, hidden_dim, targets)
-            # print("rand_x shape", rand_x.shape, "rand_y shape", rand_y.shape)
+            rand_y = one_hot(rand_index, output_size, targets)
             f_dict = {x: rand_x, y: rand_y}
-            sess.run([loss, train_op], feed_dict=f_dict)
-            if (i+1)%100==0:
-                train_acc_temp = sess.run(accuracy, feed_dict=f_dict)
-                train_loss_temp = sess.run(loss, feed_dict=f_dict)
-                print("accuracy", train_acc_temp, "loss", train_loss_temp)
+            sess.run([loss, optimizer], feed_dict=f_dict)
+            if (i+1) % 100 == 0:
+                print("accuracy", sess.run(accuracy, feed_dict=f_dict), "loss", sess.run(loss, feed_dict=f_dict))
 
         print("trained")
         print("Calculating accuracy on test data...")
-        overall_accuracy = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: one_hot(test_indices, hidden_dim, targets)})
+        overall_accuracy = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: one_hot(test_indices, output_size, targets)})
         print("accuracy", overall_accuracy)
-
-        # TODO check the training with test data
-
 
