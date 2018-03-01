@@ -82,11 +82,6 @@ if __name__ == '__main__':
     test_indices = np.array(list(set(range(sparse_tfidf_texts.shape[0])) - set(train_indices)))
     texts_train = sparse_tfidf_texts[train_indices]
     texts_test = sparse_tfidf_texts[test_indices]
-    target_train_ids = np.array([x for ix, x in enumerate(targets) if ix in train_indices])
-    target_test_ids = np.array([x for ix, x in enumerate(targets) if ix in test_indices])
-
-    print("target_test shape", target_test_ids.shape)
-    print("texts_test shape", texts_test.shape)
 
 #    print("sparse_tfidf_texts shape = " + np.shape(sparse_tfidf_texts))
 
