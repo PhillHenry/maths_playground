@@ -73,7 +73,17 @@ def parse_file():
         sub_2_lines[x] = lines
         targets += [i] * len(subject_lines)
     print(len(lines))
-    return (lines, targets)
+    return lines, targets
+
+
+def neural_net(hidden_dim):
+    x = tf.placeholder(dtype=tf.float32, shape=[None, n_features], name="x")
+    y = tf.placeholder(dtype=tf.float32, shape=[None, hidden_dim], name="y")
+    weights = tf.Variable(tf.random_normal([n_features, hidden_dim], dtype=tf.float32), name='weights')
+    biases = tf.Variable(tf.zeros([hidden_dim]), name='biases')
+    output = tf.nn.tanh(tf.matmul(x, weights) + biases)
+    print("output shape ", output.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", hidden_dim)
+    return x, output, y
 
 
 if __name__ == '__main__':
@@ -82,7 +92,6 @@ if __name__ == '__main__':
     tfidf = TfidfVectorizer(tokenizer=tokenizer, stop_words='english', max_features=n_features)
     text = clean_text(lines)
     print("Number of lines", len(lines), "number of targest", len(targets))
-    # print(text)
     sparse_tfidf_texts = tfidf.fit_transform(text)
 
     train_indices = np.random.choice(sparse_tfidf_texts.shape[0], round(0.8*sparse_tfidf_texts.shape[0]), replace=False)
@@ -91,13 +100,8 @@ if __name__ == '__main__':
 #    print("sparse_tfidf_texts shape = " + np.shape(sparse_tfidf_texts))
 
     hidden_dim = len(subjects)
-    x = tf.placeholder(dtype=tf.float32, shape=[None, n_features], name="x")
-    y = tf.placeholder(dtype=tf.float32, shape=[None, hidden_dim], name="y")
-    weights = tf.Variable(tf.random_normal([n_features, hidden_dim], dtype=tf.float32), name='weights')
-    biases = tf.Variable(tf.zeros([hidden_dim]), name='biases')
-    output = tf.nn.tanh(tf.matmul(x, weights) + biases)
 
-    print("output shape ", output.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", hidden_dim)
+    (x, output, y) = neural_net(hidden_dim)
 
     epoch = 10000
 
@@ -118,8 +122,6 @@ if __name__ == '__main__':
         ys = []
         for i in indxs:
             bit = targets[i]
-            # y = np.zeros(shape=[1, hidden_dim])
-            # y[0, ] = 1.
             y = [0.] * hidden_dim
             y[bit] = 1.
             ys.append(y)
