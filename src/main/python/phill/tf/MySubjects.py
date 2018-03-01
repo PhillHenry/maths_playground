@@ -80,8 +80,8 @@ if __name__ == '__main__':
 
     train_indices = np.random.choice(sparse_tfidf_texts.shape[0], round(0.8*sparse_tfidf_texts.shape[0]), replace=False)
     test_indices = np.array(list(set(range(sparse_tfidf_texts.shape[0])) - set(train_indices)))
-    texts_train = sparse_tfidf_texts[train_indices]
-    texts_test = sparse_tfidf_texts[test_indices]
+    #texts_train = sparse_tfidf_texts[train_indices]
+    #texts_test = sparse_tfidf_texts[test_indices]
 
 #    print("sparse_tfidf_texts shape = " + np.shape(sparse_tfidf_texts))
 
@@ -121,10 +121,11 @@ if __name__ == '__main__':
         return np.matrix(ys)
 
     with tf.Session() as sess:
+        print("training...")
         sess.run(tf.global_variables_initializer())
         for i in range(epoch):
-            rand_index = np.random.choice(texts_train.shape[0], size=batch_size)
-            rand_x = texts_train[rand_index].todense()
+            rand_index = np.random.choice(train_indices, size=batch_size)
+            rand_x = sparse_tfidf_texts[rand_index].todense()
             rand_y = one_hot(rand_index)
             # print("rand_x shape", rand_x.shape, "rand_y shape", rand_y.shape)
             f_dict = {x: rand_x, y: rand_y}
@@ -135,6 +136,9 @@ if __name__ == '__main__':
                 print("accuracy", train_acc_temp, "loss", train_loss_temp)
 
         print("trained")
+        print("Calculating accuracy on test data...")
+        overall_accuracy = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: one_hot(test_indices)})
+        print("accuracy", overall_accuracy)
 
         # TODO check the training with test data
 
