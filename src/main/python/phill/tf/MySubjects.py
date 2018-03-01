@@ -81,9 +81,26 @@ def neural_net(hidden_dim):
     y = tf.placeholder(dtype=tf.float32, shape=[None, hidden_dim], name="y")
     weights = tf.Variable(tf.random_normal([n_features, hidden_dim], dtype=tf.float32), name='weights')
     biases = tf.Variable(tf.zeros([hidden_dim]), name='biases')
-    output = tf.nn.tanh(tf.matmul(x, weights) + biases)
-    print("output shape ", output.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", hidden_dim)
-    return x, output, y
+    out = tf.nn.tanh(tf.matmul(x, weights) + biases)
+    print("out shape ", out.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", hidden_dim)
+    return x, out, y
+
+
+def optimiser_loss(actual, expected):
+    loss_fn = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(expected, actual))))
+    learning_rate = 0.0125
+    optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss_fn)
+    return optimizer, loss_fn
+
+
+def one_hot(indxs, hidden_dim):
+    ys = []
+    for i in indxs:
+        bit = targets[i]
+        y = [0.] * hidden_dim
+        y[bit] = 1.
+        ys.append(y)
+    return np.matrix(ys)
 
 
 if __name__ == '__main__':
@@ -101,31 +118,18 @@ if __name__ == '__main__':
 
     hidden_dim = len(subjects)
 
-    (x, output, y) = neural_net(hidden_dim)
+    (x, out, y) = neural_net(hidden_dim)
 
     epoch = 10000
 
-    loss = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(y, output))))
-
-    learning_rate = 0.0125
-
-    train_op = tf.train.RMSPropOptimizer(learning_rate).minimize(loss)
+    (train_op, loss) = optimiser_loss(out, y)
 
     batch_size = 10
 
     # see https://stackoverflow.com/questions/42607930/how-to-compute-accuracy-of-cnn-in-tensorflow
-    prediction = tf.argmax(output, 1)
+    prediction = tf.argmax(out, 1)
     equality = tf.equal(prediction, tf.argmax(y, 1))
     accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))
-
-    def one_hot(indxs):
-        ys = []
-        for i in indxs:
-            bit = targets[i]
-            y = [0.] * hidden_dim
-            y[bit] = 1.
-            ys.append(y)
-        return np.matrix(ys)
 
     with tf.Session() as sess:
         print("training...")
@@ -133,7 +137,7 @@ if __name__ == '__main__':
         for i in range(epoch):
             rand_index = np.random.choice(train_indices, size=batch_size)
             rand_x = sparse_tfidf_texts[rand_index].todense()
-            rand_y = one_hot(rand_index)
+            rand_y = one_hot(rand_index, hidden_dim)
             # print("rand_x shape", rand_x.shape, "rand_y shape", rand_y.shape)
             f_dict = {x: rand_x, y: rand_y}
             sess.run([loss, train_op], feed_dict=f_dict)
@@ -144,7 +148,7 @@ if __name__ == '__main__':
 
         print("trained")
         print("Calculating accuracy on test data...")
-        overall_accuracy = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: one_hot(test_indices)})
+        overall_accuracy = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: one_hot(test_indices, hidden_dim)})
         print("accuracy", overall_accuracy)
 
         # TODO check the training with test data
