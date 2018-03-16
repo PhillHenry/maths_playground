@@ -145,7 +145,7 @@ def accuracy_fn():
     return tf.reduce_mean(tf.cast(equality, tf.float32))
 
 
-def as_vectors_from_dtm(docs, targets):
+def as_vectors_from_dtm(docs, targets, max_length):
     big_docs = line_per_category(docs, targets)
 
     vec = CountVectorizer()
@@ -153,19 +153,25 @@ def as_vectors_from_dtm(docs, targets):
     features = vec.get_feature_names()
     df = pd.DataFrame(X.toarray(), columns=features)
 
-    n_cat = len(set(targets))
-    max_w = max_words(docs)
-
     ds = []
     for d in docs:
         vec = []
         for w in tokenizer(d):
             if w in features:
-                s = df[w]
-                vec.append(s)
-        ds.append(vec)
+                s = df[w].tolist()
+                vec += s
+        ds.append(pad_with_zeros_or_truncate(vec, max_length))
 
     return ds
+
+
+def pad_with_zeros_or_truncate(xs, n):
+    if len(xs) > n:
+        return xs[n - 1:]
+    elif len(xs) < n:
+        return xs + [0.] * (n - len(xs))
+    else:
+        return xs
 
 
 def max_words(docs):
