@@ -142,8 +142,60 @@ def accuracy_fn():
     # see https://stackoverflow.com/questions/42607930/how-to-compute-accuracy-of-cnn-in-tensorflow
     prediction = tf.argmax(out, 1)
     equality = tf.equal(prediction, tf.argmax(y, 1))
-    accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))
-    return accuracy
+    return tf.reduce_mean(tf.cast(equality, tf.float32))
+
+
+def as_vectors_from_dtm(docs, targets):
+    big_docs = line_per_category(docs, targets)
+
+    vec = CountVectorizer()
+    X = vec.fit_transform(big_docs)
+    features = vec.get_feature_names()
+    df = pd.DataFrame(X.toarray(), columns=features)
+
+    n_cat = len(set(targets))
+    max_w = max_words(docs)
+
+    ds = []
+    for d in docs:
+        vec = []
+        for w in tokenizer(d):
+            if w in features:
+                s = df[w]
+                vec.append(s)
+        ds.append(vec)
+
+    return ds
+
+
+def max_words(docs):
+    max = 0
+    for d in docs:
+        w = tokenizer(d)
+        s = len(w)
+        if s > max:
+            max = s
+    return max
+
+
+def line_per_category(docs, targets):
+    cats = as_categories(docs, targets)
+    big_docs = []
+    for i in range(len(set(targets))):
+        word_list = cats[i]
+        big_docs.append(' '.join(word_list))
+    return big_docs
+
+
+def as_categories(docs, targets):
+    agg = {}
+    dxs = zip(docs, targets)
+    for (d, x) in dxs:
+        cat = agg.get(x, [])
+        cleaned = ' '.join(tokenizer(d))
+        cat.append(cleaned)
+        agg[x] = cat
+    return agg
 
 
 if __name__ == '__main__':
