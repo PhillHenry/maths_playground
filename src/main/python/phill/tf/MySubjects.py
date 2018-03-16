@@ -3,6 +3,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 import string
 import numpy as np
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
 
 subjects = ["alt.atheism",
             "comp.graphics",
@@ -128,6 +130,14 @@ def do_tf_idf(n_features):
     return tf_idf_matrix, targets
 
 
+# see https://stackoverflow.com/questions/15899861/efficient-term-document-matrix-with-nltk
+def do_document_term_matrix():
+    (docs, targets) = parse_file()
+    vec = CountVectorizer()
+    X = vec.fit_transform(docs)
+    return X, targets
+
+
 def accuracy_fn():
     # see https://stackoverflow.com/questions/42607930/how-to-compute-accuracy-of-cnn-in-tensorflow
     prediction = tf.argmax(out, 1)
@@ -137,8 +147,8 @@ def accuracy_fn():
 
 
 if __name__ == '__main__':
-    n_features = 9000
-    (sparse_tfidf_texts, targets) = do_tf_idf(n_features)
+    n_features = 9510
+    (sparse_tfidf_texts, targets) = do_document_term_matrix()
 
     train_indices = np.random.choice(sparse_tfidf_texts.shape[0], round(0.8*sparse_tfidf_texts.shape[0]), replace=False)
     test_indices = np.array(list(set(range(sparse_tfidf_texts.shape[0])) - set(train_indices)))
