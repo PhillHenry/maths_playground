@@ -76,6 +76,22 @@ def parse_file():
     return lines, targets
 
 
+def neural_net_w_hidden(n_in, n_out):
+    x = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
+    y = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
+
+    n_hidden = 500
+    weight_2 = tf.Variable(tf.random_normal(shape=[n_in, n_hidden]))
+    bias_2 = tf.Variable(tf.random_normal(shape=[n_hidden]))
+    layer_2 = tf.nn.tanh(tf.matmul(x, weight_2) + bias_2)
+
+    weights = tf.Variable(tf.random_normal([n_hidden, n_out], dtype=tf.float32), name='weights')
+    biases = tf.Variable(tf.zeros([n_out]), name='biases')
+    out = tf.nn.tanh(tf.matmul(layer_2, weights) + biases)
+    print("out shape ", out.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", n_out)
+    return x, out, y
+
+
 def neural_net(n_in, n_out):
     x = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
@@ -130,6 +146,7 @@ if __name__ == '__main__':
     output_size = len(subjects)
 
     (x, out, y) = neural_net(n_features, output_size)
+    #(x, out, y) = neural_net_w_hidden(n_features, output_size) # hmm, less than the monkey score "accuracy 0.043397233"
 
     (optimizer, loss) = optimiser_loss(out, y)
 
