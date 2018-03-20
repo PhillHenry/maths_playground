@@ -5,6 +5,7 @@ import string
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
+from scipy.sparse import csr_matrix
 
 subjects = ["alt.atheism",
             "comp.graphics",
@@ -40,6 +41,14 @@ def read_lines(file):
     for line in open(file, 'r'):
         lines.append(line)
     return lines
+
+
+def cleaned(text):
+    return clean_text([text])[0]
+
+
+def cleaned_docs(docs):
+    return map(lambda x: cleaned(x), docs)
 
 
 def tokenizer(text):
@@ -145,23 +154,54 @@ def accuracy_fn():
     return tf.reduce_mean(tf.cast(equality, tf.float32))
 
 
+def vec_per_category(docs, targets):
+    vec = CountVectorizer()
+    X = vec.fit_transform(cleaned_docs(docs))
+
+    cat_to_vec = {}
+    rows = X.toarray()
+    width = len(rows[0])
+    for (x, i) in zip(rows, targets):
+        already = cat_to_vec.get(i, [0] * width)
+        cat_to_vec[i] = already + x
+
+    return cat_to_vec, vec, X
+
+
+def docs_to_vecs(docs, targets):
+    cat_to_vec, vec, X = vec_per_category(docs, targets)
+    max_w = max_words(docs)
+    print("max number of words", max_w)
+    vecs = docs_to_vecs_of_cats(docs, X, vec, max_w * len(subjects))
+    return vecs, len(vec.get_feature_names())
+
+
 def as_vectors_from_dtm(docs, targets, max_length):
     big_docs = line_per_category(docs, targets)
 
     vec = CountVectorizer()
     X = vec.fit_transform(big_docs)
+
+    return docs_to_vecs_of_cats(docs, X, vec, max_length)
+
+
+def docs_to_vecs_of_cats(docs, X, vec, max_vector_length):
     features = vec.get_feature_names()
     df = pd.DataFrame(X.toarray(), columns=features)
 
     ds = []
+    i = 0
     for d in docs:
         vec = []
         for w in tokenizer(d):
             if w in features:
                 s = df[w].tolist()
                 vec += s
-        ds.append(pad_with_zeros_or_truncate(vec, max_length))
-
+        ds.append(pad_with_zeros_or_truncate(vec, max_vector_length))
+        i += 1
+        if i % 100 == 0:
+            print("document #", i)
+    print("document #", i)
     return ds
 
 
@@ -205,11 +245,26 @@ def as_categories(docs, targets):
 
 
 if __name__ == '__main__':
-    n_features = 9510
-    (sparse_tfidf_texts, targets) = do_document_term_matrix()
+    #n_features = 9510
+    (docs, targets) = parse_file()
+    # dict_doc_vectors = vec_per_category(docs, targets)
+    #
+    # vs = []
+    # for i in sorted(dict_doc_vectors.keys()):
+    #     vs.append(dict_doc_vectors[i])
+    # doc_vectors = csr_matrix(vs)
+    # n_features = doc_vectors.shape[1]
+    vecs, n_features = docs_to_vecs(docs, targets)
+    print("number of features", n_features)
+    print("vecs", vecs)
+    doc_vectors = csr_matrix(vecs, dtype=float)
 
-    train_indices = np.random.choice(sparse_tfidf_texts.shape[0], round(0.8*sparse_tfidf_texts.shape[0]), replace=False)
-    test_indices = np.array(list(set(range(sparse_tfidf_texts.shape[0])) - set(train_indices)))
+
+    #(doc_vectors, targets) = do_document_term_matrix()
+
+    print("Splitting...")
+    train_indices = np.random.choice(doc_vectors.shape[0], round(0.8 * doc_vectors.shape[0]), replace=False)
+    test_indices = np.array(list(set(range(doc_vectors.shape[0])) - set(train_indices)))
 
     output_size = len(subjects)
 
@@ -228,7 +283,7 @@ if __name__ == '__main__':
         sess.run(tf.global_variables_initializer())
         for i in range(epoch):
             rand_index = np.random.choice(train_indices, size=batch_size)
-            rand_x = sparse_tfidf_texts[rand_index].todense()
+            rand_x = doc_vectors[rand_index].todense()
             rand_y = one_hot(rand_index, output_size, targets)
             f_dict = {x: rand_x, y: rand_y}
             sess.run([loss, optimizer], feed_dict=f_dict)
@@ -237,6 +292,6 @@ if __name__ == '__main__':
 
         print("trained")
         print("Calculating accuracy on test data...")
-        overall_accuracy = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: one_hot(test_indices, output_size, targets)})
+        overall_accuracy = sess.run(accuracy, feed_dict={x: doc_vectors[test_indices].todense(), y: one_hot(test_indices, output_size, targets)})
         print("accuracy", overall_accuracy)
 

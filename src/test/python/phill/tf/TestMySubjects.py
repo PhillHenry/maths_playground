@@ -11,6 +11,22 @@ class MyTestCase(unittest.TestCase):
     categories = set(targets)
     n_categories = len(categories)
 
+    def test_docs_to_vecs(self):
+        vecs, n_features = mg.docs_to_vecs(self.docs, self.targets)
+        self.assertEqual(len(vecs), len(self.docs))
+
+    def test_vec_per_category(self):
+        cat_to_vec, vec, X = mg.vec_per_category(self.docs, self.targets)
+        print(cat_to_vec)
+        self.assertEquals(len(cat_to_vec), self.n_categories)
+        for i in cat_to_vec:
+            row = cat_to_vec[i]
+            print("i", i, "row", row)
+            self.assertEqual(len(row), len(set(mg.cleaned_docs(self.words))))
+
+    def test_cleaned(self):
+        self.assertEqual(mg.cleaned("she went there? omg"), "she went there omg")
+
     def test_pad_list(self):
         self.assertEqual(len(mg.pad_with_zeros_or_truncate([1] * 3, 5)), 5)
 
