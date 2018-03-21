@@ -13,9 +13,9 @@ class MyTestCase(unittest.TestCase):
     n_categories = len(categories)
 
     def test_word_to_cat_vector(self):
-        x = mg.word_to_cat_vector(self.docs, self.targets)
+        word2vec, n_features = mg.word_to_cat_vector(self.docs, self.targets)
         for word in mg.cleaned_docs(self.words):
-            v = x[word]
+            v = word2vec[word]
             self.assertEqual(len(v), self.n_categories)
 
 

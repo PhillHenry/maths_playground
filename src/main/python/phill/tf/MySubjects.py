@@ -182,9 +182,10 @@ def word_to_cat_vector(docs, targets):
     # print("c2v", c2v)
 
     word_to_vec = {}
-    for (i, w) in enumerate(vec.get_feature_names()):
+    features = vec.get_feature_names()
+    for (i, w) in enumerate(features):
         word_to_vec[w] = c2v[:, i]
-    return word_to_vec
+    return word_to_vec, features
 
 
 def docs_to_vecs(docs, targets, max_vector_length):
@@ -207,13 +208,21 @@ def docs_to_vecs_of_cats(docs, X, vec, max_vector_length):
     features = vec.get_feature_names()
     df = pd.DataFrame(X.toarray(), columns=features)
 
+    def to_vec_as_list(w):
+        return df[w].tolist()
+
+    fn = to_vec_as_list
+    return to_vec(docs, max_vector_length, features, fn)
+
+
+def to_vec(docs, max_vector_length, features, fn):
     ds = []
     i = 0
     for d in docs:
         vec = []
         for w in tokenizer(d):
             if w in features:
-                s = df[w].tolist()
+                s = fn(w)
                 #print("adding", s)
                 vec += s
         padded = pad_with_zeros_or_truncate(vec, max_vector_length)
@@ -267,14 +276,29 @@ def as_categories(docs, targets):
         agg[x] = cat
     return agg
 
+def flatten(xs):
+    return [item for sublist in xs for item in sublist]
+
 
 def to_csr(docs, targets, max_vec_size):
-    vecs, n_features = docs_to_vecs(docs, targets, max_vec_size)
+    word_2_vec, features = word_to_cat_vector(docs, targets)
+
+    def to_vec_as_list(w):
+        v = word_2_vec[w]
+        np_vec = np.asmatrix(v, dtype=float)
+        return flatten(np.asarray(np_vec.transpose()))  #.tolist()
+
+    fn = to_vec_as_list
+    vecs = to_vec(docs, max_vec_size, features, fn)
+
     arrays = []
-    for v in vecs:
-        arrays.append(np.asanyarray(v))
+    for vec in vecs:
+        np_vec = np.asanyarray(vec)
+        print("vec", vec)
+        arrays.append(np_vec)
     np_array = np.asarray(arrays)
-    return csr_matrix(np_array, dtype=float), n_features
+    print("np_array", np_array)
+    return csr_matrix(np_array, dtype=float), len(features)
 
 
 if __name__ == '__main__':
