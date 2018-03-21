@@ -168,11 +168,29 @@ def vec_per_category(docs, targets):
     return cat_to_vec, vec, X
 
 
-def docs_to_vecs(docs, targets):
+def word_to_cat_vector(docs, targets):
     cat_to_vec, vec, X = vec_per_category(docs, targets)
-    max_w = max_words(docs)
-    print("max number of words", max_w)
-    vecs = docs_to_vecs_of_cats(docs, X, vec, max_w * len(subjects))
+
+    rows = []
+    for i in cat_to_vec:
+        rows.append(cat_to_vec[i])
+
+    #rows = X.toarray()
+    c2v = np.asmatrix(rows, dtype=float)
+
+    # print("vec.max_features", vec.get_feature_names())
+    # print("c2v", c2v)
+
+    word_to_vec = {}
+    for (i, w) in enumerate(vec.get_feature_names()):
+        word_to_vec[w] = c2v[:, i]
+    return word_to_vec
+
+
+def docs_to_vecs(docs, targets, max_vector_length):
+    cat_to_vec, vec, X = vec_per_category(docs, targets)
+    # TODO - no we need cat_to_vec
+    vecs = docs_to_vecs_of_cats(docs, X, vec, max_vector_length)
     return vecs, len(vec.get_feature_names())
 
 
@@ -196,20 +214,26 @@ def docs_to_vecs_of_cats(docs, X, vec, max_vector_length):
         for w in tokenizer(d):
             if w in features:
                 s = df[w].tolist()
+                #print("adding", s)
                 vec += s
-        ds.append(pad_with_zeros_or_truncate(vec, max_vector_length))
-        i += 1
+        padded = pad_with_zeros_or_truncate(vec, max_vector_length)
+        assert len(padded) == max_vector_length, "%d != %d for '%s'" % (len(padded), max_vector_length, d)
+        ds.append(padded)
         if i % 100 == 0:
-            print("document #", i)
+            print("document #", i, "padded", padded, "max_vector_length", max_vector_length)
+        i += 1
+
     print("document #", i)
     return ds
 
 
 def pad_with_zeros_or_truncate(xs, n):
-    if len(xs) > n:
+    length = len(xs)
+    # print("length", length)
+    if length > n:
         return xs[n - 1:]
-    elif len(xs) < n:
-        return xs + [0.] * (n - len(xs))
+    elif length < n:
+        return xs + [0.] * (n - length)
     else:
         return xs
 
@@ -244,21 +268,20 @@ def as_categories(docs, targets):
     return agg
 
 
-if __name__ == '__main__':
-    #n_features = 9510
-    (docs, targets) = parse_file()
-    # dict_doc_vectors = vec_per_category(docs, targets)
-    #
-    # vs = []
-    # for i in sorted(dict_doc_vectors.keys()):
-    #     vs.append(dict_doc_vectors[i])
-    # doc_vectors = csr_matrix(vs)
-    # n_features = doc_vectors.shape[1]
-    vecs, n_features = docs_to_vecs(docs, targets)
-    print("number of features", n_features)
-    print("vecs", vecs)
-    doc_vectors = csr_matrix(vecs, dtype=float)
+def to_csr(docs, targets, max_vec_size):
+    vecs, n_features = docs_to_vecs(docs, targets, max_vec_size)
+    arrays = []
+    for v in vecs:
+        arrays.append(np.asanyarray(v))
+    np_array = np.asarray(arrays)
+    return csr_matrix(np_array, dtype=float), n_features
 
+
+if __name__ == '__main__':
+    (docs, targets) = parse_file()
+
+    vector_size = len(subjects) * 3  # max_words(docs)
+    doc_vectors, n_features = to_csr(docs, targets, vector_size)
 
     #(doc_vectors, targets) = do_document_term_matrix()
 

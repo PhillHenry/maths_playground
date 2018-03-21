@@ -1,6 +1,7 @@
 import unittest
 
 import src.main.python.phill.tf.MySubjects as mg
+import numpy as np
 
 
 class MyTestCase(unittest.TestCase):
@@ -11,9 +12,26 @@ class MyTestCase(unittest.TestCase):
     categories = set(targets)
     n_categories = len(categories)
 
+    def test_word_to_cat_vector(self):
+        x = mg.word_to_cat_vector(self.docs, self.targets)
+        for word in mg.cleaned_docs(self.words):
+            v = x[word]
+            self.assertEqual(len(v), self.n_categories)
+
+
+    def test_to_csr(self):
+        max_vec_size = mg.max_words(self.docs) * len(self.docs)
+        doc_vectors, n_features = mg.to_csr(self.docs, self.targets, max_vec_size)
+        self.assertEqual(doc_vectors.shape[0], len(self.docs))
+        self.assertEqual(doc_vectors.shape[1], max_vec_size)
+        self.assertEqual(n_features, len(set(mg.cleaned_docs(self.words))))
+
     def test_docs_to_vecs(self):
-        vecs, n_features = mg.docs_to_vecs(self.docs, self.targets)
+        max_vec_size = mg.max_words(self.docs) * len(self.docs)
+        vecs, n_features = mg.docs_to_vecs(self.docs, self.targets, max_vec_size)
         self.assertEqual(len(vecs), len(self.docs))
+        for v in vecs:
+            self.assertEqual(len(v), max_vec_size)
 
     def test_vec_per_category(self):
         cat_to_vec, vec, X = mg.vec_per_category(self.docs, self.targets)
@@ -22,6 +40,7 @@ class MyTestCase(unittest.TestCase):
         for i in cat_to_vec:
             row = cat_to_vec[i]
             print("i", i, "row", row)
+            self.assertEqual(len(row), len(vec.get_feature_names()))
             self.assertEqual(len(row), len(set(mg.cleaned_docs(self.words))))
 
     def test_cleaned(self):
