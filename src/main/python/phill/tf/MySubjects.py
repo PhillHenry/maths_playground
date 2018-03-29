@@ -226,7 +226,7 @@ def to_vec(docs, max_vector_length, features, fn):
                 #print("adding", s)
                 vec += s
         padded = pad_with_zeros_or_truncate(vec, max_vector_length)
-        assert len(padded) == max_vector_length, "%d != %d for '%s'" % (len(padded), max_vector_length, d)
+        assert len(padded) == max_vector_length, "%d != %d for '%s', len vector %d" % (len(padded), max_vector_length, d, len(vec))
         ds.append(padded)
         if i % 100 == 0:
             print("document #", i, "padded", padded, "max_vector_length", max_vector_length)
@@ -238,11 +238,11 @@ def to_vec(docs, max_vector_length, features, fn):
 
 def pad_with_zeros_or_truncate(xs, n):
     length = len(xs)
-    # print("length", length)
+    #print("length", length, "xs", xs)
     if length > n:
-        return xs[n - 1:]
+        return xs[0:n]
     elif length < n:
-        return xs + [0.] * (n - length)
+        return xs + ([0.] * (n - length))
     else:
         return xs
 
@@ -294,7 +294,7 @@ def to_csr(docs, targets, max_vec_size):
     arrays = []
     for vec in vecs:
         np_vec = np.asanyarray(vec)
-        print("vec", vec)
+        #print("vec", vec)
         arrays.append(np_vec)
     np_array = np.asarray(arrays)
     print("np_array", np_array)

@@ -49,8 +49,13 @@ class MyTestCase(unittest.TestCase):
     def test_pad_list(self):
         self.assertEqual(len(mg.pad_with_zeros_or_truncate([1] * 3, 5)), 5)
 
+    def test_pad_empty(self):
+        xs = []
+        truncated = mg.pad_with_zeros_or_truncate(xs, 3)
+        self.assertEqual(len(truncated), 3)
+
     def test_tuncate_list(self):
-        xs = [1] * 5
+        xs = [1] * 10
         truncated = mg.pad_with_zeros_or_truncate(xs, 3)
         self.assertEqual(len(truncated), 3)
 
