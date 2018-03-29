@@ -315,8 +315,8 @@ if __name__ == '__main__':
 
     output_size = len(subjects)
 
-    (x, out, y) = neural_net(n_features, output_size)
-    #(x, out, y) = neural_net_w_hidden(n_features, output_size) # hmm, less than the monkey score "accuracy 0.043397233"
+    (x, out, y) = neural_net(vector_size, output_size)
+    # (x, out, y) = neural_net_w_hidden(vector_size, output_size) # hmm, less than the monkey score "accuracy 0.043397233"
 
     (optimizer, loss) = optimiser_loss(out, y)
 
