@@ -99,7 +99,7 @@ def neural_net_w_hidden(n_in, n_out):
     weights = tf.Variable(tf.random_normal([n_hidden, n_out], dtype=tf.float32), name='weights')
     biases = tf.Variable(tf.zeros([n_out]), name='biases')
     out = tf.nn.tanh(tf.matmul(layer_2, weights) + biases)
-    print("out shape ", out.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", n_out)
+    print("out shape ", out.shape, ", x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", n_out)
     return x, out, y
 
 
@@ -304,7 +304,7 @@ def to_csr(docs, targets, max_vec_size):
 if __name__ == '__main__':
     (docs, targets) = parse_file()
 
-    vector_size = len(subjects) * 3  # max_words(docs)
+    vector_size = len(subjects) * 5  # max_words(docs)
     doc_vectors, n_features = to_csr(docs, targets, vector_size)
 
     #(doc_vectors, targets) = do_document_term_matrix()
@@ -315,8 +315,8 @@ if __name__ == '__main__':
 
     output_size = len(subjects)
 
-    (x, out, y) = neural_net(vector_size, output_size)
-    # (x, out, y) = neural_net_w_hidden(vector_size, output_size) # hmm, less than the monkey score "accuracy 0.043397233"
+    #(x, out, y) = neural_net(vector_size, output_size)
+    (x, out, y) = neural_net_w_hidden(vector_size, output_size) # hmm, less than the monkey score "accuracy 0.043397233"
 
     (optimizer, loss) = optimiser_loss(out, y)
 
