@@ -92,17 +92,27 @@ def fully_connected(input_layer, weights, biases):
     return(tf.nn.relu(layer))
 
 
+def init_weight(shape, st_dev):
+    weight = tf.Variable(tf.random_normal(shape, stddev=st_dev))
+    return(weight)
+
+
+def init_bias(shape, st_dev):
+    bias = tf.Variable(tf.random_normal(shape, stddev=st_dev))
+    return(bias)
+
+
 def neural_net_w_hidden(n_in, n_out):
     x = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
 
-    n_hidden = 500
-    weight_2 = tf.Variable(tf.random_normal(shape=[n_in, n_hidden]))
-    bias_2 = tf.Variable(tf.random_normal(shape=[n_hidden]))
+    n_hidden = 50
+    weight_2 = init_weight(shape=[n_in, n_hidden], st_dev=10.0)
+    bias_2 = init_bias(shape=[n_hidden], st_dev=10.0)
     layer_2 = fully_connected(x, weight_2, bias_2)
 
-    weights = tf.Variable(tf.random_normal([n_hidden, n_out], dtype=tf.float32), name='weights')
-    biases = tf.Variable(tf.zeros([n_out]), name='biases')
+    weights = init_weight(shape=[n_hidden, n_out], st_dev=10.0)
+    biases = init_bias(shape=[n_out], st_dev=10.0)
     out = fully_connected(layer_2, weights, biases)
     print("out shape ", out.shape, ", x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", n_out)
     return x, out, y

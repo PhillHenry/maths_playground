@@ -57,6 +57,7 @@ def train_and_test(nn_init_fn):
 
 
 if __name__ == '__main__':
-    train_and_test(util.neural_net) # about 70%
+    # train_and_test(util.neural_net) # about 70%
+    train_and_test(util.neural_net_w_hidden) # about 70%
 
 
