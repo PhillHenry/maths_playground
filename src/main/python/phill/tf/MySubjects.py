@@ -147,7 +147,7 @@ def do_document_term_matrix():
     return X, targets
 
 
-def accuracy_fn():
+def accuracy_fn(out, y):
     # see https://stackoverflow.com/questions/42607930/how-to-compute-accuracy-of-cnn-in-tensorflow
     prediction = tf.argmax(out, 1)
     equality = tf.equal(prediction, tf.argmax(y, 1))
@@ -323,7 +323,7 @@ if __name__ == '__main__':
     epoch = 10000
     batch_size = 10
 
-    accuracy = accuracy_fn()
+    accuracy = accuracy_fn(out, y)
 
     with tf.Session() as sess:
         print("training...")
