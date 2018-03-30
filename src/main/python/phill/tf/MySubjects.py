@@ -87,6 +87,11 @@ def parse_file():
     return lines, targets
 
 
+def fully_connected(input_layer, weights, biases):
+    layer = tf.add(tf.matmul(input_layer, weights), biases)
+    return(tf.nn.relu(layer))
+
+
 def neural_net_w_hidden(n_in, n_out):
     x = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
@@ -94,11 +99,11 @@ def neural_net_w_hidden(n_in, n_out):
     n_hidden = 500
     weight_2 = tf.Variable(tf.random_normal(shape=[n_in, n_hidden]))
     bias_2 = tf.Variable(tf.random_normal(shape=[n_hidden]))
-    layer_2 = tf.nn.tanh(tf.matmul(x, weight_2) + bias_2)
+    layer_2 = fully_connected(x, weight_2, bias_2)
 
     weights = tf.Variable(tf.random_normal([n_hidden, n_out], dtype=tf.float32), name='weights')
     biases = tf.Variable(tf.zeros([n_out]), name='biases')
-    out = tf.nn.tanh(tf.matmul(layer_2, weights) + biases)
+    out = fully_connected(layer_2, weights, biases)
     print("out shape ", out.shape, ", x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", n_out)
     return x, out, y
 

@@ -18,13 +18,7 @@ def test_train_indices(n, batch_size, test_to_train_ratio):
     return xs
 
 
-if __name__ == '__main__':
-    n_features = 9000
-    (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
-    output_size = len(util.subjects)
-
-    (x, out, y) = util.neural_net(n_features, output_size)
-
+def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets):
     (optimizer, loss) = util.optimiser_loss(out, y)
 
     epoch = 1000
@@ -42,13 +36,27 @@ if __name__ == '__main__':
             for i in range(epoch):
                 rand_index = np.random.choice(train_indices, size=batch_size)
                 rand_x = sparse_tfidf_texts[rand_index].todense()
-                rand_y = util.one_hot(rand_index, output_size, targets)
+                rand_y = util.one_hot(rand_index, out.shape[1], targets)
                 f_dict = {x: rand_x, y: rand_y}
                 sess.run([loss, optimizer], feed_dict=f_dict)
                 if (i+1) % 100 == 0:
                     print("accuracy", sess.run(accuracy, feed_dict=f_dict), "loss", sess.run(loss, feed_dict=f_dict))
             print("batch %d finished" % i_batch)
             i_batch = i_batch + 1
-            acc = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: util.one_hot(test_indices, output_size, targets)})
+            acc = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[test_indices].todense(), y: util.one_hot(test_indices, out.shape[1], targets)})
             print("batch accuracy", acc)
+
+
+def train_and_test(nn_init_fn):
+    n_features = 9000
+    (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
+    output_size = len(util.subjects)
+
+    (x, out, y) = nn_init_fn(n_features, output_size)
+    train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets)
+
+
+if __name__ == '__main__':
+    train_and_test(util.neural_net) # about 70%
+
 
