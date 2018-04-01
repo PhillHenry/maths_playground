@@ -103,19 +103,30 @@ def init_bias(shape, st_dev):
 
 
 def neural_net_w_hidden(n_in, n_out):
-    x = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
-    y = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
+    x_data = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
+    y_target = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
 
-    n_hidden = 50
-    weight_2 = init_weight(shape=[n_in, n_hidden], st_dev=10.0)
-    bias_2 = init_bias(shape=[n_hidden], st_dev=10.0)
-    layer_2 = fully_connected(x, weight_2, bias_2)
+    size_1 = 1
+    size_2 = n_out
+    size_3 = 20
 
-    weights = init_weight(shape=[n_hidden, n_out], st_dev=10.0)
-    biases = init_bias(shape=[n_out], st_dev=10.0)
-    out = fully_connected(layer_2, weights, biases)
-    print("out shape ", out.shape, ", x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", n_out)
-    return x, out, y
+    weight_1 = init_weight(shape=[n_in, size_1], st_dev=10.0)
+    bias_1 = init_bias(shape=[size_1], st_dev=10.0)
+    layer_1 = fully_connected(x_data, weight_1, bias_1)
+
+    weight_2 = init_weight(shape=[size_1, size_2], st_dev=10.0)
+    bias_2 = init_bias(shape=[size_2], st_dev=10.0)
+    layer_2 = fully_connected(layer_1, weight_2, bias_2)
+    #
+    # weight_3 = init_weight(shape=[size_2, size_3], st_dev=10.0)
+    # bias_3 = init_bias(shape=[size_3], st_dev=10.0)
+    # layer_3 = fully_connected(layer_2, weight_3, bias_3)
+    #
+    # weight_4 = init_weight(shape=[size_3, n_out], st_dev=10.0)
+    # bias_4 = init_bias(shape=[n_out], st_dev=10.0)
+    # final_output = fully_connected(layer_3, weight_4, bias_4)
+
+    return x_data, layer_2, y_target, layer_1
 
 
 def neural_net(n_in, n_out):
@@ -128,10 +139,10 @@ def neural_net(n_in, n_out):
     return x, out, y
 
 
-def optimiser_loss(actual, expected):
+def optimiser_loss(actual, expected, learning_rate=0.0125):
     loss_fn = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(expected, actual))))
-    learning_rate = 0.0125
-    optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss_fn)
+    #optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss_fn)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss_fn)
     return optimizer, loss_fn
 
 
@@ -319,7 +330,7 @@ def to_csr(docs, targets, max_vec_size):
 if __name__ == '__main__':
     (docs, targets) = parse_file()
 
-    vector_size = len(subjects) * 5  # max_words(docs)
+    vector_size = len(subjects) * 10  # max_words(docs)
     doc_vectors, n_features = to_csr(docs, targets, vector_size)
 
     #(doc_vectors, targets) = do_document_term_matrix()
