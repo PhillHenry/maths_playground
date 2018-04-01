@@ -18,7 +18,7 @@ def test_train_indices(n, batch_size, test_to_train_ratio):
     return xs
 
 
-def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, layer_1):
+def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets):
     #(optimizer, loss) = util.optimiser_loss(out, y, learning_rate=0.01)
 
     # ValueError: Only call `softmax_cross_entropy_with_logits` with named arguments (labels=..., logits=..., ...)
@@ -69,8 +69,8 @@ def train_and_test(nn_init_fn):
     (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
     output_size = len(util.subjects)
 
-    (x, out, y, layer1) = nn_init_fn(n_features, output_size)
-    train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, layer1)
+    (x, out, y) = nn_init_fn(n_features, output_size)
+    train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets)
 
 
 if __name__ == '__main__':

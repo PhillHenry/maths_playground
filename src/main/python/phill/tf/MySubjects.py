@@ -126,7 +126,7 @@ def neural_net_w_hidden(n_in, n_out):
     # bias_4 = init_bias(shape=[n_out], st_dev=10.0)
     # final_output = fully_connected(layer_3, weight_4, bias_4)
 
-    return x_data, layer_2, y_target, layer_1
+    return x_data, layer_2, y_target #, layer_1
 
 
 def neural_net(n_in, n_out):
