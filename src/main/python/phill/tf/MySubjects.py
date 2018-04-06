@@ -106,7 +106,7 @@ def neural_net_w_hidden(n_in, n_out):
     x_data = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
     y_target = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
 
-    size_1 = 1
+    size_1 = 100
     size_2 = n_out
     size_3 = 20
 
@@ -141,8 +141,8 @@ def neural_net(n_in, n_out):
 
 def optimiser_loss(actual, expected, learning_rate=0.0125):
     loss_fn = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(expected, actual))))
-    #optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss_fn)
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss_fn)
+    optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(loss_fn)
+    #optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss_fn)
     return optimizer, loss_fn
 
 

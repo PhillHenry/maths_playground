@@ -3,7 +3,7 @@ import tensorflow as tf
 import src.main.python.phill.tf.MySubjects as util
 import matplotlib.pyplot as plt
 
-log_every = 80
+log_every = 8
 
 
 def test_train_indices(n, batch_size, test_to_train_ratio):
@@ -22,14 +22,16 @@ def test_train_indices(n, batch_size, test_to_train_ratio):
 
 
 def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
-    loss = tf.reduce_mean(tf.abs(y - out))
-    my_opt = tf.train.AdamOptimizer(0.005)
-    optimizer = my_opt.minimize(loss)
+    # (optimizer, loss) = util.optimiser_loss(out, y, learning_rate=0.01)
+    #loss = tf.reduce_mean(tf.abs(y - out))
 
-    reg_lambda = 1.0
+    reg_lambda = 0.1
     diff_plus_regularization = tf.add(tf.reduce_sum(tf.square(y - out)), tf.multiply(reg_lambda, tf.reduce_sum(tf.square(out))))
     print(x.shape[1], x.shape[0])
-    loss = tf.div(diff_plus_regularization, 20000)
+    loss = tf.div(diff_plus_regularization, 2000)
+
+    my_opt = tf.train.AdamOptimizer(0.005)
+    optimizer = my_opt.minimize(loss)
 
     accuracy = util.accuracy_fn(out, y)
 
