@@ -335,16 +335,25 @@ if __name__ == '__main__':
 
     #(doc_vectors, targets) = do_document_term_matrix()
 
+    print("feature size", n_features)
     print("Splitting...")
     train_indices = np.random.choice(doc_vectors.shape[0], round(0.8 * doc_vectors.shape[0]), replace=False)
     test_indices = np.array(list(set(range(doc_vectors.shape[0])) - set(train_indices)))
 
     output_size = len(subjects)
 
-    #(x, out, y) = neural_net(vector_size, output_size)
-    (x, out, y) = neural_net_w_hidden(vector_size, output_size) # hmm, less than the monkey score "accuracy 0.043397233"
+    (x, out, y) = neural_net(vector_size, output_size) # ~64%; ~5% w regularization of 1.0, 0.1, 0.01, 0.001, 0001, 0,.00001;
+    # (x, out, y) = neural_net_w_hidden(vector_size, output_size) # hmm, less than the monkey score "accuracy 0.043397233"
 
-    (optimizer, loss) = optimiser_loss(out, y)
+    # (optimizer, loss) = optimiser_loss(out, y)
+
+    loss = tf.reduce_mean(tf.abs(y - out))
+    my_opt = tf.train.AdamOptimizer(0.05)
+    optimizer = my_opt.minimize(loss)
+    reg_lambda = 0.0001
+    diff_plus_regularization = tf.add(tf.reduce_sum(tf.square(y - out)), tf.multiply(reg_lambda, tf.reduce_sum(tf.square(out))))
+    print(x.shape[1], x.shape[0])
+    loss = tf.div(diff_plus_regularization, 2 * n_features)
 
     epoch = 10000
     batch_size = 10

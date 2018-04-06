@@ -3,7 +3,8 @@ import tensorflow as tf
 import src.main.python.phill.tf.MySubjects as util
 import matplotlib.pyplot as plt
 
-log_every = 5
+log_every = 80
+
 
 def test_train_indices(n, batch_size, test_to_train_ratio):
     indices = np.random.choice(n, size=[n], replace=False)
@@ -11,7 +12,7 @@ def test_train_indices(n, batch_size, test_to_train_ratio):
     for i in range(int(n / batch_size)):
         start_incl = i * batch_size
         end_excl = (i+1) * batch_size
-        print("(%d, %d] in %s" % (start_incl, end_excl, np.shape(indices)))
+        # print("(%d, %d] in %s" % (start_incl, end_excl, np.shape(indices)))
         batch = indices[start_incl:end_excl]
         end_test_incl = int(batch_size * test_to_train_ratio / (test_to_train_ratio + 1))
         test = batch[0:end_test_incl]
@@ -20,13 +21,7 @@ def test_train_indices(n, batch_size, test_to_train_ratio):
     return xs
 
 
-def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets):
-    #(optimizer, loss) = util.optimiser_loss(out, y, learning_rate=0.01)
-
-    # ValueError: Only call `softmax_cross_entropy_with_logits` with named arguments (labels=..., logits=..., ...)
-    #loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(out, y))
-
-
+def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
     loss = tf.reduce_mean(tf.abs(y - out))
     my_opt = tf.train.AdamOptimizer(0.005)
     optimizer = my_opt.minimize(loss)
@@ -35,8 +30,6 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets):
     diff_plus_regularization = tf.add(tf.reduce_sum(tf.square(y - out)), tf.multiply(reg_lambda, tf.reduce_sum(tf.square(out))))
     print(x.shape[1], x.shape[0])
     loss = tf.div(diff_plus_regularization, 20000)
-
-    epoch = log_every * 16
 
     accuracy = util.accuracy_fn(out, y)
 
@@ -62,7 +55,7 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets):
                 rand_y = util.one_hot(rand_index, out.shape[1], targets)
                 f_dict = {x: rand_x, y: rand_y}
                 sess.run([loss, optimizer], feed_dict=f_dict)
-                if i % log_every == 0:
+                if i % log_every == log_every - 1:
                     train_acc = sess.run(accuracy, feed_dict=f_dict)
                     train_loss = sess.run(loss, feed_dict=f_dict)
                     f_dict_test = {x: sparse_tfidf_texts[test_indices].todense(),
@@ -74,7 +67,7 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets):
                     total_batch_train_acc += train_acc
                     total_batch_train_loss += train_loss
                     total_batch_test_loss += test_loss
-            if i % log_every == 0:
+            if i % log_every == log_every - 1:
                 print("\nEpoch %d " % i)
                 test_acc = (total_batch_test_acc / i_batch)
                 train_acc = (total_batch_train_acc / i_batch)
@@ -91,7 +84,7 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets):
 
 
 
-def train_and_test(nn_init_fn):
+def train_and_test(nn_init_fn, epoch):
     n_features = 9000
     (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
 
@@ -101,11 +94,12 @@ def train_and_test(nn_init_fn):
     output_size = len(util.subjects)
 
     (x, out, y) = nn_init_fn(n_features, output_size)
-    return train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets)
+    return train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch)
 
 
-if __name__ == '__main__':
-    (test, train, total) = train_and_test(util.neural_net) # about 70%, 80% (after about 500 epochs, 256 batch size and regularization of 0.1), 79.8% with regularizer of 0.1
+def plot_training_vs_testing():
+    epoch = log_every * 16
+    (test, train, total) = train_and_test(util.neural_net, epoch)  # about 70%, 80% (after about 500 epochs, 256 batch size and regularization of 0.1), 79.8% with regularizer of 0.1
     # removing batch_size and using all the training data (about 500 vs. 128) and regularizer of 1.0 gives 86.5% after 300 epochs, 87.2% after 600 epochs
     # train_and_test(util.neural_net_w_hidden)
     xs = [i * log_every for i in range(len(total))]
@@ -117,5 +111,46 @@ if __name__ == '__main__':
     plt.ylabel('accuracy')
     plt.xlabel('epochs')
     plt.show()
+
+
+def plot_accuracy_vs_data():
+    epoch = log_every
+    n_features = 9000
+    (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
+
+    output_size = len(util.subjects)
+
+    (x, out, y) = util.neural_net(n_features, output_size)
+
+    n = 16
+    total = []
+    test = []
+    train = []
+    for i in range(n - 1):
+        i += 1
+        print("i", i)
+        pc_of_data = float(i) / float(n)
+        indices = np.random.choice(sparse_tfidf_texts.shape[0], round(pc_of_data * sparse_tfidf_texts.shape[0]), replace=False)
+        print(indices)
+        doc_vec_sample = sparse_tfidf_texts[indices]
+        target_sample = np.array(targets)[indices]
+        (test_accs, train_accs, total_accs) = train_and_test_in_batches(x, out, y, doc_vec_sample, target_sample, epoch)
+        print(test_accs, train_accs, total_accs)
+        total.extend(total_accs)
+        test.extend(test_accs)
+        train.extend(train_accs)
+
+    xs = [float(i) / n for i in range(len(total))]
+    print("xs", xs)
+    print("total", total)
+    plt.plot(xs, total)
+    plt.plot(xs, test, 'o', c='b')
+    plt.plot(xs, train, 'o', c='r')
+    plt.ylabel('accuracy')
+    plt.xlabel('fraction of all data')
+    plt.show()
+
+if __name__ == '__main__':
+    plot_training_vs_testing()
 
 
