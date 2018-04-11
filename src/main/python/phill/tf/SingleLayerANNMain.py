@@ -56,10 +56,10 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
                 rand_x = sparse_tfidf_texts[rand_index].todense()
                 rand_y = util.one_hot(rand_index, out.shape[1], targets)
                 f_dict = {x: rand_x, y: rand_y}
-                sess.run([loss, optimizer], feed_dict=f_dict)
+                train_loss, _, train_acc = sess.run([loss, optimizer, accuracy], feed_dict=f_dict)
                 if i % log_every == log_every - 1:
-                    train_acc = sess.run(accuracy, feed_dict=f_dict)
-                    train_loss = sess.run(loss, feed_dict=f_dict)
+                    #train_acc = sess.run(accuracy, feed_dict=f_dict)
+                    #train_loss = sess.run(loss, feed_dict=f_dict)
                     f_dict_test = {x: sparse_tfidf_texts[test_indices].todense(),
                                             y: util.one_hot(test_indices, out.shape[1], targets)}
                     test_acc = sess.run(accuracy, feed_dict=f_dict_test)
@@ -117,7 +117,7 @@ def plot_training_vs_testing():
 
 def plot_accuracy_vs_data():
     epoch = log_every
-    n_features = 9000
+    n_features = 575
     (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
 
     output_size = len(util.subjects)
@@ -151,6 +151,7 @@ def plot_accuracy_vs_data():
     plt.ylabel('accuracy')
     plt.xlabel('fraction of all data')
     plt.show()
+
 
 if __name__ == '__main__':
     plot_training_vs_testing()
