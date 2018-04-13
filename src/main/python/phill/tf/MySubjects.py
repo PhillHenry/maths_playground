@@ -134,9 +134,11 @@ def neural_net(n_in, n_out):
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
     weights = tf.Variable(tf.random_normal([n_in, n_out], dtype=tf.float32), name='weights')
     biases = tf.Variable(tf.zeros([n_out]), name='biases')
-    out = tf.nn.tanh(tf.matmul(x, weights) + biases)
+    dropout_keep_prob = tf.placeholder(tf.float32, name='dropout_prob')
+    out = tf.nn.dropout(tf.nn.tanh(tf.matmul(x, weights) + biases), keep_prob=dropout_keep_prob)
+
     print("out shape ", out.shape, "x shape ", x.shape, "weights shape", weights.shape, "bias shape", biases.shape, "hidden_dim", n_out)
-    return x, out, y
+    return x, out, y, dropout_keep_prob
 
 
 def optimiser_loss(actual, expected, learning_rate=0.0125):

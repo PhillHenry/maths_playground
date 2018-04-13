@@ -43,7 +43,7 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dro
     train_accs = []
     total_accs = []
 
-    p_dropout = 0.9  # wow 0.9->88.8% accuracy
+    p_dropout = 0.9  # 1.0->88.8% accuracy. 0.8->68%, 0.95->81%, 0.85->71.9%, 0.9->76.5%, 0.97->83.3%, 0.99->84.7%, 1.0->85.3%
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
