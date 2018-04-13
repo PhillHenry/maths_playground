@@ -21,7 +21,7 @@ def test_train_indices(n, batch_size, test_to_train_ratio):
     return xs
 
 
-def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
+def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dropout_keep_prob):
     # (optimizer, loss) = util.optimiser_loss(out, y, learning_rate=0.01)
     #loss = tf.reduce_mean(tf.abs(y - out))
 
@@ -43,6 +43,8 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
     train_accs = []
     total_accs = []
 
+    p_dropout = 0.9  # wow 0.9->88.8% accuracy
+
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         for i in range(epoch):
@@ -55,13 +57,14 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
                 rand_index = train_indices
                 rand_x = sparse_tfidf_texts[rand_index].todense()
                 rand_y = util.one_hot(rand_index, out.shape[1], targets)
-                f_dict = {x: rand_x, y: rand_y}
+                f_dict = {x: rand_x, y: rand_y, dropout_keep_prob: p_dropout}
                 train_loss, _, train_acc = sess.run([loss, optimizer, accuracy], feed_dict=f_dict)
                 if i % log_every == log_every - 1:
                     #train_acc = sess.run(accuracy, feed_dict=f_dict)
                     #train_loss = sess.run(loss, feed_dict=f_dict)
                     f_dict_test = {x: sparse_tfidf_texts[test_indices].todense(),
-                                            y: util.one_hot(test_indices, out.shape[1], targets)}
+                                   y: util.one_hot(test_indices, out.shape[1], targets),
+                                   dropout_keep_prob: p_dropout}
                     test_acc = sess.run(accuracy, feed_dict=f_dict_test)
                     test_loss = sess.run(loss, feed_dict=f_dict_test)
                     i_batch = i_batch + 1
@@ -77,7 +80,9 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
                 print("Average train accuracy", train_acc)
                 print("Average test loss     ", (total_batch_test_loss / i_batch))
                 print("Average train loss    ", (total_batch_train_loss / i_batch))
-                acc = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[all_test].todense(), y: util.one_hot(all_test, out.shape[1], targets)})
+                acc = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[all_test].todense(),
+                                                    y: util.one_hot(all_test, out.shape[1], targets),
+                                                    dropout_keep_prob: p_dropout})
                 print("batch accuracy        ", acc)
                 test_accs.append(test_acc)
                 train_accs.append(train_acc)
@@ -95,8 +100,8 @@ def train_and_test(nn_init_fn, epoch):
 
     output_size = len(util.subjects)
 
-    (x, out, y) = nn_init_fn(n_features, output_size)
-    return train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch)
+    (x, out, y, dropout_keep_prob) = nn_init_fn(n_features, output_size)
+    return train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dropout_keep_prob)
 
 
 def plot_training_vs_testing():
@@ -122,7 +127,7 @@ def plot_accuracy_vs_data():
 
     output_size = len(util.subjects)
 
-    (x, out, y) = util.neural_net(n_features, output_size)
+    (x, out, y, dropout_keep_prob) = util.neural_net(n_features, output_size)
 
     n = 16
     total = []
@@ -136,7 +141,7 @@ def plot_accuracy_vs_data():
         print(indices)
         doc_vec_sample = sparse_tfidf_texts[indices]
         target_sample = np.array(targets)[indices]
-        (test_accs, train_accs, total_accs) = train_and_test_in_batches(x, out, y, doc_vec_sample, target_sample, epoch)
+        (test_accs, train_accs, total_accs) = train_and_test_in_batches(x, out, y, doc_vec_sample, target_sample, epoch, dropout_keep_prob)
         print(test_accs, train_accs, total_accs)
         total.extend(total_accs)
         test.extend(test_accs)
