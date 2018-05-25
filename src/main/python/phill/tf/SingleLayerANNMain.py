@@ -22,9 +22,6 @@ def test_train_indices(n, batch_size, test_to_train_ratio):
 
 
 def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dropout_keep_prob):
-    # (optimizer, loss) = util.optimiser_loss(out, y, learning_rate=0.01)
-    #loss = tf.reduce_mean(tf.abs(y - out))
-
     reg_lambda = 0.1
     diff_plus_regularization = tf.add(tf.reduce_sum(tf.square(y - out)), tf.multiply(reg_lambda, tf.reduce_sum(tf.square(out))))
     print(x.shape[1], x.shape[0])
@@ -91,9 +88,6 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dro
 def train_and_test(nn_init_fn, epoch):
     n_features = 9000
     (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
-
-    print("input shape", sparse_tfidf_texts.shape)  # (18781, 9000)
-    print(sparse_tfidf_texts)
 
     output_size = len(util.subjects)
 

@@ -14,6 +14,13 @@ class MyTestCase(unittest.TestCase):
     n_categories = len(categories)
 
     def test_term_class_matrix(self):
+        matrix = mg.term_class_matrix(self.docs)
+        print("term class matrix\n", matrix)
+        self.assertEqual(matrix.shape[0], len(self.docs))
+        #self.assertEqual(matrix.shape[1], self.n_categories)
+
+
+    def test_count_vectorizer(self):
         (matrix, vocab) = mg.matrix_and_vocab(self.docs)
         print("vocabulary = ", vocab)
         print("matrix shape", matrix.shape)
