@@ -160,12 +160,13 @@ def one_hot(indxs, hidden_dim, targets):
 
 def do_count_vectorization():
     (lines, targets) = parse_file()
-    return term_class_matrix(lines)
+    return matrix_and_vocab(lines)
 
 
-def term_class_matrix(lines):
+def matrix_and_vocab(lines):
     count_vectorizer = CountVectorizer()
-    return count_vectorizer.fit_transform(lines)
+    matrix = count_vectorizer.fit_transform(lines)
+    return matrix, count_vectorizer.vocabulary_
 
 
 def do_tf_idf(n_features):

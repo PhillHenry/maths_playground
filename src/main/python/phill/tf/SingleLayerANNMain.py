@@ -60,8 +60,6 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dro
                 f_dict = {x: rand_x, y: rand_y, dropout_keep_prob: p_dropout}
                 train_loss, _, train_acc = sess.run([loss, optimizer, accuracy], feed_dict=f_dict)
                 if i % log_every == log_every - 1:
-                    #train_acc = sess.run(accuracy, feed_dict=f_dict)
-                    #train_loss = sess.run(loss, feed_dict=f_dict)
                     f_dict_test = {x: sparse_tfidf_texts[test_indices].todense(),
                                    y: util.one_hot(test_indices, out.shape[1], targets),
                                    dropout_keep_prob: p_dropout}
@@ -88,7 +86,6 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dro
                 train_accs.append(train_acc)
                 total_accs.append(acc)
     return test_accs, train_accs, total_accs
-
 
 
 def train_and_test(nn_init_fn, epoch):
