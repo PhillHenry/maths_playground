@@ -163,27 +163,19 @@ def do_count_vectorization():
     return matrix_and_vocab(lines)
 
 
-def term_class_matrix(docs):
+def term_count_matrix(docs):
     (matrix, vocab) = matrix_and_vocab(docs)
-    print("vocab=", vocab)
-    print("matrix shape=", matrix.shape)
     ds = cleaned_docs(docs)
     doc_vecs = []
     for d in ds:
-        print("d=", d)
         vs = []
         for w in d.split(" "):
-            print("w=", w)
             index = vocab[w]
             v = matrix[:, index].todense()
-            print("v=", v)
             vs.append(v)
         summed = np.sum(vs, axis=0)
-        print("summed", summed)
         vector = np.asmatrix(summed).transpose()
-        print("vector", vector)
         doc_vecs.append(vector.tolist()[0])
-    print("doc_vecs", doc_vecs)
     return np.asmatrix(doc_vecs, dtype="float")
 
 
