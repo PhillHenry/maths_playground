@@ -12,12 +12,19 @@ class MyTestCase(unittest.TestCase):
     categories = set(targets)
     n_categories = len(categories)
 
+    def test_term_class_matrix(self):
+        matrix = mg.term_class_matrix(self.docs)
+        print("matrix shape", matrix.shape)
+        from sklearn.feature_extraction.text import CountVectorizer
+        print(CountVectorizer().fit(self.docs).get_feature_names)
+        self.assertEqual(matrix.shape[0], len(self.docs))
+        self.assertEqual(matrix.shape[1], len(set(map(lambda x: mg.cleaned(x), self.words))))
+
     def test_word_to_cat_vector(self):
         word2vec, n_features = mg.word_to_cat_vector(self.docs, self.targets)
         for word in mg.cleaned_docs(self.words):
             v = word2vec[word]
             self.assertEqual(len(v), self.n_categories)
-
 
     def test_to_csr(self):
         max_vec_size = mg.max_words(self.docs) * len(self.docs)

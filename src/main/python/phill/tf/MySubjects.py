@@ -158,6 +158,16 @@ def one_hot(indxs, hidden_dim, targets):
     return np.matrix(ys)
 
 
+def do_count_vectorization():
+    (lines, targets) = parse_file()
+    return term_class_matrix(lines)
+
+
+def term_class_matrix(lines):
+    count_vectorizer = CountVectorizer()
+    return count_vectorizer.fit_transform(lines)
+
+
 def do_tf_idf(n_features):
     (lines, targets) = parse_file()
     tfidf = TfidfVectorizer(tokenizer=tokenizer, stop_words='english', max_features=n_features)
