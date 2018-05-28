@@ -188,7 +188,7 @@ def matrix_and_vocab(lines):
 
 def do_term_cat():
     (lines, targets) = parse_file()
-    term_category.matrix_targets(lines, targets)
+    return term_category.matrix_targets(lines, targets)
 
 
 def do_tf_idf(n_features):

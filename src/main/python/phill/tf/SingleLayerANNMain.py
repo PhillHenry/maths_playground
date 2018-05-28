@@ -4,7 +4,7 @@ import src.main.python.phill.tf.MySubjects as util
 import src.main.python.phill.text.TermCategoryVectorizer as term_category
 import matplotlib.pyplot as plt
 
-log_every = 8
+log_every = 2
 
 
 def test_train_indices(n, batch_size, test_to_train_ratio):
@@ -53,12 +53,12 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dro
             total_batch_test_loss = 0.0
             for (test_indices, train_indices) in testing_training:
                 rand_index = train_indices
-                rand_x = sparse_tfidf_texts[rand_index].todense()
+                rand_x = sparse_tfidf_texts[rand_index] #.todense()
                 rand_y = util.one_hot(rand_index, out.shape[1], targets)
                 f_dict = {x: rand_x, y: rand_y, dropout_keep_prob: p_dropout}
                 train_loss, _, train_acc = sess.run([loss, optimizer, accuracy], feed_dict=f_dict)
                 if i % log_every == log_every - 1:
-                    f_dict_test = {x: sparse_tfidf_texts[test_indices].todense(),
+                    f_dict_test = {x: sparse_tfidf_texts[test_indices], #.todense(),
                                    y: util.one_hot(test_indices, out.shape[1], targets),
                                    dropout_keep_prob: p_dropout}
                     test_acc = sess.run(accuracy, feed_dict=f_dict_test)
@@ -76,7 +76,7 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dro
                 print("Average train accuracy", train_acc)
                 print("Average test loss     ", (total_batch_test_loss / i_batch))
                 print("Average train loss    ", (total_batch_train_loss / i_batch))
-                acc = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[all_test].todense(),
+                acc = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[all_test], #.todense(),
                                                     y: util.one_hot(all_test, out.shape[1], targets),
                                                     dropout_keep_prob: p_dropout})
                 print("batch accuracy        ", acc)
@@ -87,8 +87,9 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dro
 
 
 def train_and_test(nn_init_fn, epoch):
-    n_features = 9000
-    (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
+    n_features = len(util.subjects)
+    # (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
+    (sparse_tfidf_texts, targets) = util.do_term_cat()
 
     output_size = len(util.subjects)
 
@@ -114,8 +115,9 @@ def plot_training_vs_testing():
 
 def plot_accuracy_vs_data():
     epoch = log_every
-    n_features = 575
-    (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
+    n_features = 20
+    # (sparse_tfidf_texts, targets) = util.do_tf_idf(n_features)
+    (sparse_tfidf_texts, targets) = util.do_term_cat()
 
     output_size = len(util.subjects)
 
