@@ -3,6 +3,12 @@ import collections
 import numpy as np
 
 
+def matrix_targets(lines, targets):
+    size = len(set(targets))
+    rows = to_category_vectors(lines, targets, size)
+    return np.matrix(rows), targets
+
+
 def normalize(histo, size):
     xs = [0.] * size
     z = 0.0
@@ -14,18 +20,17 @@ def normalize(histo, size):
     return xs
 
 
-def to_category_vectors(doc_to_cat):
-    t_to_cs = term_to_cat_dict(doc_to_cat)
-    cats = set(doc_to_cat.values())
+def to_category_vectors(docs, cats, size):
+    #(docs, cats) = zip(*doc_to_cat)
+    t_to_cs = term_to_cat_dict(zip(docs, cats))
     word_vectors = {}
-    size = len(cats)
 
     for w, h in t_to_cs.items():
         v = normalize(h, size)
         word_vectors[w] = v
 
     vs = []
-    for d in doc_to_cat.keys():
+    for d in docs:
         vector = np.zeros(size)
         for w in d.split(" "):
             v = np.add(vector, word_vectors[w])
@@ -40,8 +45,7 @@ def term_to_cat_dict(doc_to_cat):
     :return: map of term to category histograms
     """
     t_to_cs = collections.defaultdict(lambda: collections.defaultdict(lambda: 0))
-    for d, c in doc_to_cat.items():
-        print("d=", d, "c=",c)
+    for d, c in doc_to_cat:
         for w in d.split(" "):
             histo = t_to_cs[w]
             x = histo[c]

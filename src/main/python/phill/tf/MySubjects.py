@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from scipy.sparse import csr_matrix
+import src.main.python.phill.text.TermCategoryVectorizer as term_category
 
 subjects = ["alt.atheism",
             "comp.graphics",
@@ -183,6 +184,11 @@ def matrix_and_vocab(lines):
     count_vectorizer = CountVectorizer()
     matrix = count_vectorizer.fit_transform(lines)
     return matrix, count_vectorizer.vocabulary_
+
+
+def do_term_cat():
+    (lines, targets) = parse_file()
+    term_category.matrix_targets(lines, targets)
 
 
 def do_tf_idf(n_features):
