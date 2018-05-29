@@ -104,30 +104,19 @@ def init_bias(shape, st_dev):
 
 
 def neural_net_w_hidden(n_in, n_out):
-    x_data = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
-    y_target = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
+    size_1 = 300
 
-    size_1 = 100
-    size_2 = n_out
-    size_3 = 20
+    x = tf.placeholder(dtype=tf.float32, shape=[None, n_in], name="x")
+    y = tf.placeholder(dtype=tf.float32, shape=[None, n_out], name="y")
+    weights = tf.Variable(tf.random_normal([n_in, size_1], dtype=tf.float32), name='weights')
+    biases = tf.Variable(tf.zeros([size_1]), name='biases')
+    mid = tf.nn.tanh(tf.matmul(x, weights) + biases)
 
-    weight_1 = init_weight(shape=[n_in, size_1], st_dev=10.0)
-    bias_1 = init_bias(shape=[size_1], st_dev=10.0)
-    layer_1 = fully_connected(x_data, weight_1, bias_1)
+    weights2 = tf.Variable(tf.random_normal([size_1, n_out], dtype=tf.float32), name='weights2')
+    biases2 = tf.Variable(tf.zeros([n_out]), name='biases2')
+    out = tf.nn.tanh(tf.matmul(mid, weights2) + biases2)
 
-    weight_2 = init_weight(shape=[size_1, size_2], st_dev=10.0)
-    bias_2 = init_bias(shape=[size_2], st_dev=10.0)
-    layer_2 = fully_connected(layer_1, weight_2, bias_2)
-    #
-    # weight_3 = init_weight(shape=[size_2, size_3], st_dev=10.0)
-    # bias_3 = init_bias(shape=[size_3], st_dev=10.0)
-    # layer_3 = fully_connected(layer_2, weight_3, bias_3)
-    #
-    # weight_4 = init_weight(shape=[size_3, n_out], st_dev=10.0)
-    # bias_4 = init_bias(shape=[n_out], st_dev=10.0)
-    # final_output = fully_connected(layer_3, weight_4, bias_4)
-
-    return x_data, layer_2, y_target #, layer_1
+    return x, out, y
 
 
 def neural_net(n_in, n_out):
