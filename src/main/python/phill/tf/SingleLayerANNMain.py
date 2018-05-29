@@ -22,7 +22,7 @@ def test_train_indices(n, batch_size, test_to_train_ratio):
     return xs
 
 
-def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dropout_keep_prob):
+def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
     reg_lambda = 0.1
     diff_plus_regularization = tf.add(tf.reduce_sum(tf.square(y - out)), tf.multiply(reg_lambda, tf.reduce_sum(tf.square(out))))
     print(x.shape[1], x.shape[0])
@@ -55,12 +55,11 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dro
                 rand_index = train_indices
                 rand_x = sparse_tfidf_texts[rand_index] #.todense()
                 rand_y = util.one_hot(rand_index, out.shape[1], targets)
-                f_dict = {x: rand_x, y: rand_y, dropout_keep_prob: p_dropout}
+                f_dict = {x: rand_x, y: rand_y}
                 train_loss, _, train_acc = sess.run([loss, optimizer, accuracy], feed_dict=f_dict)
                 if i % log_every == log_every - 1:
                     f_dict_test = {x: sparse_tfidf_texts[test_indices], #.todense(),
-                                   y: util.one_hot(test_indices, out.shape[1], targets),
-                                   dropout_keep_prob: p_dropout}
+                                   y: util.one_hot(test_indices, out.shape[1], targets)}
                     test_acc = sess.run(accuracy, feed_dict=f_dict_test)
                     test_loss = sess.run(loss, feed_dict=f_dict_test)
                     i_batch = i_batch + 1
@@ -77,8 +76,7 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dro
                 print("Average test loss     ", (total_batch_test_loss / i_batch))
                 print("Average train loss    ", (total_batch_train_loss / i_batch))
                 acc = sess.run(accuracy, feed_dict={x: sparse_tfidf_texts[all_test], #.todense(),
-                                                    y: util.one_hot(all_test, out.shape[1], targets),
-                                                    dropout_keep_prob: p_dropout})
+                                                    y: util.one_hot(all_test, out.shape[1], targets)})
                 print("batch accuracy        ", acc)
                 test_accs.append(test_acc)
                 train_accs.append(train_acc)
@@ -93,8 +91,8 @@ def train_and_test(nn_init_fn, epoch):
 
     output_size = len(util.subjects)
 
-    (x, out, y, dropout_keep_prob) = nn_init_fn(n_features, output_size)
-    return train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch, dropout_keep_prob)
+    (x, out, y) = nn_init_fn(n_features, output_size)
+    return train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch) #, dropout_keep_prob)
 
 
 def plot_training_vs_testing():
