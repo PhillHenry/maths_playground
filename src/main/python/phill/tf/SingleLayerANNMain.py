@@ -26,9 +26,9 @@ def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
     reg_lambda = 0.1
     diff_plus_regularization = tf.add(tf.reduce_sum(tf.square(y - out)), tf.multiply(reg_lambda, tf.reduce_sum(tf.square(out))))
     print(x.shape[1], x.shape[0])
-    loss = tf.div(diff_plus_regularization, 2000)
+    loss = tf.div(diff_plus_regularization, 20)
 
-    my_opt = tf.train.AdamOptimizer(0.005)
+    my_opt = tf.train.AdamOptimizer()
     optimizer = my_opt.minimize(loss)
 
     accuracy = util.accuracy_fn(out, y)
@@ -96,7 +96,7 @@ def train_and_test(nn_init_fn, epoch):
 
 
 def plot_training_vs_testing():
-    epoch = log_every * 100
+    epoch = log_every * 500
     (test, train, total) = train_and_test(util.neural_net_w_hidden, epoch)  # about 70%, 80% (after about 500 epochs, 256 batch size and regularization of 0.1), 79.8% with regularizer of 0.1
     # removing batch_size and using all the training data (about 500 vs. 128) and regularizer of 1.0 gives 86.5% after 300 epochs, 87.2% after 600 epochs
     # train_and_test(util.neural_net_w_hidden)
