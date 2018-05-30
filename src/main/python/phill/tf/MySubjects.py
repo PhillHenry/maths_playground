@@ -114,7 +114,7 @@ def neural_net_w_hidden(n_in, n_out):
 
     weights2 = tf.Variable(tf.random_normal([size_1, n_out], dtype=tf.float32), name='weights2')
     biases2 = tf.Variable(tf.zeros([n_out]), name='biases2')
-    out = tf.nn.tanh(tf.matmul(mid, weights2) + biases2)
+    out = tf.nn.log_softmax(tf.matmul(mid, weights2) + biases2)
 
     return x, out, y
 

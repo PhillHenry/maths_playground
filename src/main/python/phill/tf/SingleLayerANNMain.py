@@ -23,13 +23,7 @@ def test_train_indices(n, batch_size, test_to_train_ratio):
 
 
 def train_and_test_in_batches(x, out, y, sparse_tfidf_texts, targets, epoch):
-    reg_lambda = 0.1
-    diff_plus_regularization = tf.add(tf.reduce_sum(tf.square(y - out)), tf.multiply(reg_lambda, tf.reduce_sum(tf.square(out))))
-    print(x.shape[1], x.shape[0])
-    loss = tf.div(diff_plus_regularization, 20)
-
-    my_opt = tf.train.AdamOptimizer()
-    optimizer = my_opt.minimize(loss)
+    (optimizer, loss) = util.optimiser_loss(out, y)
 
     accuracy = util.accuracy_fn(out, y)
 
