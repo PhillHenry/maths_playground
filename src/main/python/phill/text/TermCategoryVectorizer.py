@@ -10,7 +10,7 @@ def from_file(file):
     for line in open(file):
         elements = line.strip().split(",")
         target, *vector = elements
-        targets.extend(target)
+        targets.append(int(target))
         rows.append(vector)
     return np.matrix(rows), targets
 

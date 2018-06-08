@@ -17,6 +17,7 @@ class TestTermCategoryVectorizer(unittest.TestCase):
     def test_parse_vector_file(self):
         n_expected_vecs = 3
         matrix, targets = to_test.from_file(os.getcwd() + "/../../../resources/term_category.csv")
+        print("targets", targets)
         self.assertEqual(len(targets), n_expected_vecs)
         self.assertEqual(matrix.shape[0], n_expected_vecs)
 
