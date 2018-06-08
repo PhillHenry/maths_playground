@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import MySubjects as util
+import src.main.python.phill.tf.MySubjects as util
 import src.main.python.phill.text.TermCategoryVectorizer as term_category
 import matplotlib.pyplot as plt
 
@@ -90,7 +90,7 @@ def train_and_test(nn_init_fn, epoch):
 
 
 def plot_training_vs_testing():
-    epoch = log_every * 500
+    epoch = log_every * 50
     (test, train, total) = train_and_test(util.neural_net, epoch)  # about 70%, 80% (after about 500 epochs, 256 batch size and regularization of 0.1), 79.8% with regularizer of 0.1
     # removing batch_size and using all the training data (about 500 vs. 128) and regularizer of 1.0 gives 86.5% after 300 epochs, 87.2% after 600 epochs
     # train_and_test(util.neural_net_w_hidden)

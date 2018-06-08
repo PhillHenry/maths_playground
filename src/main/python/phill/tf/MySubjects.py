@@ -7,6 +7,8 @@ import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from scipy.sparse import csr_matrix
 import src.main.python.phill.text.TermCategoryVectorizer as term_category
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 subjects = ["alt.atheism",
             "comp.graphics",
@@ -148,31 +150,9 @@ def one_hot(indxs, hidden_dim, targets):
     return np.matrix(ys)
 
 
-def do_count_vectorization():
-    (lines, targets) = parse_file()
-    return matrix_and_vocab(lines)
-
-
-def term_count_matrix(docs):
-    (matrix, vocab) = matrix_and_vocab(docs)
-    ds = cleaned_docs(docs)
-    doc_vecs = []
-    for d in ds:
-        vs = []
-        for w in d.split(" "):
-            index = vocab[w]
-            v = matrix[:, index].todense()
-            vs.append(v)
-        summed = np.sum(vs, axis=0)
-        vector = np.asmatrix(summed).transpose()
-        doc_vecs.append(vector.tolist()[0])
-    return np.asmatrix(doc_vecs, dtype="float")
-
-
-def matrix_and_vocab(lines):
-    count_vectorizer = CountVectorizer()
-    matrix = count_vectorizer.fit_transform(lines)
-    return matrix, count_vectorizer.vocabulary_
+def remove_stopwords(lines):
+    stop_words = set(stopwords.words('english'))
+    return list(map(lambda x: ' '.join([w for w in word_tokenize(x) if not w in stop_words]), lines))
 
 
 def do_term_cat():

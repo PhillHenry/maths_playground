@@ -13,20 +13,11 @@ class MyTestCase(unittest.TestCase):
     categories = set(targets)
     n_categories = len(categories)
 
-    def test_term_class_matrix(self):
-        matrix = mg.term_count_matrix(self.docs)
-        print("term class matrix\n", matrix)
-        self.assertEqual(matrix.shape[0], len(self.docs))
-        #  hmm, no, we're not making a term2cat map
-        #self.assertEqual(matrix.shape[1], self.n_categories)
-
-    def test_count_vectorizer(self):
-        (matrix, vocab) = mg.matrix_and_vocab(self.docs)
-        print("vocabulary = ", vocab)
-        print("matrix shape", matrix.shape)
-        self.assertEqual(matrix.shape[0], len(self.docs))
-        self.assertEqual(matrix.shape[1], len(self.cleaned_words))
-        self.assertEqual(set(vocab), set(self.cleaned_words))
+    def test_stopword_removal(self):
+        lines = mg.remove_stopwords(self.docs)
+        self.assertEqual(len(self.docs), len(lines))
+        print("lines", lines)
+        self.assertTrue("hello" in lines)
 
     def test_word_to_cat_vector(self):
         word2vec, n_features = mg.word_to_cat_vector(self.docs, self.targets)
