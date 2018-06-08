@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import src.main.python.phill.tf.MySubjects as util
+import MySubjects as util
 import src.main.python.phill.text.TermCategoryVectorizer as term_category
 import matplotlib.pyplot as plt
 
