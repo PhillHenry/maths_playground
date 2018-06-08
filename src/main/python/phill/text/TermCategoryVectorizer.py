@@ -3,6 +3,18 @@ import collections
 import numpy as np
 
 
+def from_file(file):
+    print("Reading file", file)
+    targets =[]
+    rows = []
+    for line in open(file):
+        elements = line.strip().split(",")
+        target, *vector = elements
+        targets.extend(target)
+        rows.append(vector)
+    return np.matrix(rows), targets
+
+
 def matrix_targets(lines, targets):
     size = len(set(targets))
     rows = to_category_vectors(lines, targets, size)
@@ -21,7 +33,6 @@ def normalize(histo, size):
 
 
 def to_category_vectors(docs, cats, size):
-    #(docs, cats) = zip(*doc_to_cat)
     t_to_cs = term_to_cat_dict(zip(docs, cats))
     word_vectors = {}
 
