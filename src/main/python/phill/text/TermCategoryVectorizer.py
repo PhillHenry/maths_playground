@@ -11,7 +11,7 @@ def from_file(file):
         elements = line.strip().split(",")
         target, *vector = elements
         targets.append(int(target))
-        rows.append(vector)
+        rows.append(list(map(lambda x: float(x), vector)))
     return np.matrix(rows), targets
 
 
