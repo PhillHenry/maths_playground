@@ -12,8 +12,8 @@ l2 = [0.9351491569390402, 0.9421977556637731, 0.9387062566277836,
 l1_mean_obs = np.mean(l1)
 l2_mean_obs = np.mean(l2)
 
-l1_std_obs = np.std(l1)
-l2_std_obs = np.std(l2)
+l1_std_obs = np.std(l1, ddof=1)
+l2_std_obs = np.std(l2, ddof=1)
 
 print("L1: mean {0:.3f}, std {1:.4f} ".format(l1_mean_obs, l1_std_obs))
 print("L2: mean {0:.3f}, std {1:.4f} ".format(l2_mean_obs, l2_std_obs))
