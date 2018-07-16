@@ -3,22 +3,13 @@ sys.path.insert(0, os.path.abspath("."))  # https://stackoverflow.com/questions/
 import matplotlib.pyplot as plt
 from scipy import stats
 import MonteCarloMain as data
-import numpy as np
 
-
-print(stats.ttest_ind(data.l1, data.l2, equal_var=False))
-
-# this means my calculation agrees with stats.ttest_ind
-vn1 = np.var(data.l1, 0, ddof=1) / len(data.l1)
-vn2 = np.var(data.l2, 0, ddof=1) / len(data.l2)
+(t_value, p_value) = stats.ttest_ind(data.l1, data.l2, equal_var=False)
+print("t = {0:.3f}, p = {1:.3f}".format(t_value, p_value))
 
 # this doesn't quite give the correct value as the degrees of freedom is 0
 vn1 = data.l1_std_obs ** 2 / len(data.l1)
 vn2 = data.l2_std_obs ** 2 / len(data.l2)
-
-# this also is correct
-vn1 = np.var(data.l1, ddof=1) / len(data.l1)
-vn2 = np.var(data.l2, ddof=1) / len(data.l2)
 
 t = (data.l1_mean_obs - data.l2_mean_obs) / (vn1 + vn2) ** 0.5
 print("t = ", t)

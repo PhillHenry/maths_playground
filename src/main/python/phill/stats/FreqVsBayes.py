@@ -61,8 +61,8 @@ def bayes_CR_mu(D, sigma, frac=0.95):
 
 
 if __name__ == "__main__":
-    N = 5000
-    Nsamp = 1
+    N = 5
+    Nsamp = 10 ** 6
     sigma_x = 2
 
     np.random.seed(0)
@@ -73,8 +73,7 @@ if __name__ == "__main__":
 
     sig_samp = sigma_x * N ** -0.5
 
-    # print("{0:.3f} should equal {1:.3f}".format(np.std(mu_samp), sig_samp))
-    print("{0:.3f} should equal {1:.3f}".format(np.std(x), sig_samp))
+    print("{0:.3f} should equal {1:.3f}".format(np.std(mu_samp, ddof=1), sig_samp))
 
     true_B = 100
     sigma_x = 10
