@@ -14,7 +14,7 @@ if __name__ == '__main__':
     (t_value, p_value) = stats.ttest_ind(x, shuffled, equal_var=True)  # t = 0.000, p = 1.000
     print("t-test after shuffling,                                  t = {0:.3f}, p = {1:.3f}".format(t_value, p_value))  # -3.6817806444807806e-16 0.9999999999999998
     (t_value, p_value) = stats.ttest_ind(x, y, equal_var=True)  # t = 1.204, p = 0.228
-    print("t-test compared to same distribution but different data, t = {0:.3f}, p = {1:.3f}".format(t_value, p_value))
+    print("t-test compared to same distribution but different data, t = {0:.3f}, p = {1:.3f}".format(t_value, p_value)) # t = 0.753, p = 0.451 (but p can go much lower, very random)
 
     print()
     (chi, p) = stats.chisquare(x, shuffled)

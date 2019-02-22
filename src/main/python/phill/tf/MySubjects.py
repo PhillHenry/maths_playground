@@ -184,6 +184,11 @@ def accuracy_fn(out, y):
     return tf.reduce_mean(tf.cast(equality, tf.float32))
 
 
+def confidence_fn(out, y):
+    print(out)
+    return out
+
+
 def vec_per_category(docs, targets):
     vec = CountVectorizer()
     X = vec.fit_transform(cleaned_docs(docs))
