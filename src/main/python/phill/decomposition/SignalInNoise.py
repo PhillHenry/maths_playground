@@ -1,7 +1,5 @@
-import numpy as np
-from scipy.sparse.linalg import svds
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 h = 100
 w = 100
@@ -10,8 +8,9 @@ n = 500
 rxs = np.random.randint(w, size=n)
 rys = np.random.randint(h, size=n)
 
-xs = np.append(np.arange(0, h), rxs)
-ys = np.append(np.arange(0, h), rys)
+step = 1
+xs = np.append(w - np.arange(0, h, step), rxs)
+ys = np.append(np.arange(0, h, step), rys)
 
 X = np.asmatrix(np.array([xs, ys]))
 
@@ -38,6 +37,6 @@ fig = plt.figure(0)
 fig.add_subplot(121)
 plt.scatter(xs, ys, marker="+")
 fig.add_subplot(122)
-plt.scatter(ptx, pty)
+plt.scatter(ptx, pty, marker="+")
 plt.show()
 print("finished")
