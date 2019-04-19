@@ -1,6 +1,19 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+def createMatrix(xs, ys):
+    X = np.asmatrix(np.array([xs, ys]))
+    C = np.dot(X, X.T)
+    return X
+
+def eigenvalues_to_matrix(Sigma, U, VT):
+    S = np.diag(Sigma)
+    # S = np.zeros(shape=[U.shape[1], VT.shape[0]])
+    # S.itemset((0, 0), Sigma[0])
+    return S
+
+
 h = 100
 w = 100
 n = 500
@@ -10,26 +23,22 @@ rys = np.random.randint(h, size=n)
 
 step = 1
 xs = np.append(w - np.arange(0, h, step), rxs)
-ys = np.append(np.arange(0, h, step), rys)
+ys = np.append(0.5 * np.arange(0, h, step), rys)
 
-X = np.asmatrix(np.array([xs, ys]))
+X = createMatrix(xs, ys)
 
 # U, Sigma, VT = svds(X, k=2, tol=0)
-U, Sigma, VT = np.linalg.svd(X, full_matrices=True)
+U, Sigma, VT = np.linalg.svd(X, full_matrices=False)
 
-# S = np.diag(Sigma)
-
-S = np.zeros(shape=[U.shape[1], VT.shape[0]])
-
-S.itemset((0, 0), Sigma[0])
+S = eigenvalues_to_matrix(Sigma, U, VT)
 
 uv = np.dot(U, S)
-all = np.dot(uv, VT)
-print('U.shape = {}, Sigma.shape = {}, S.shape ={}, uv.shape = {}, VT.shape = {}, all = {}'.format(U.shape, Sigma.shape, S.shape, uv.shape, VT.shape, all.shape))
+reconstruction = np.dot(uv, VT)
+print('X.shape = {}, U.shape = {}, Sigma.shape = {}, S.shape ={}, uv.shape = {}, VT.shape = {}, reconstruction = {}'.format(X.shape, U.shape, Sigma.shape, S.shape, uv.shape, VT.shape, reconstruction.shape))
 
 # x,y = np.argwhere(X != 0).T
-ptx = np.asarray(all[0, :])[0]
-pty = np.asarray(all[1, :])[0]
+ptx = np.asarray(reconstruction[0, :])[0]
+pty = np.asarray(reconstruction[1, :])[0]
 print('ptx.shape = {}, pty.shape = {}'.format(len(ptx), len(pty)))
 
 
