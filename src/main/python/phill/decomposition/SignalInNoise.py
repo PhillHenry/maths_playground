@@ -9,9 +9,10 @@ def create_matrix(xs, ys):
 
 
 def eigenvalues_to_matrix(Sigma, U, VT):
-    S = np.diag(Sigma)
-    # S = np.zeros(shape=[U.shape[1], VT.shape[0]])
-    # S.itemset((1, 1), Sigma[1])
+    # S = np.diag(Sigma)
+    S = np.zeros(shape=[U.shape[1], VT.shape[0]])
+    n = 0
+    S.itemset((n, n), Sigma[n])
     return S
 
 
@@ -24,24 +25,27 @@ rys = np.random.randint(h, size=n)
 
 step = 2
 sinewave = np.sin(np.linspace(-np.pi, np.pi, (w/step))) * (h / 4)
-print(sinewave)
-xs = np.append(w - np.arange(0, w, step), rxs)
-ys = np.append(0.5 * (np.arange(0, h, step) + sinewave), rys)
+xs = np.append(w - (np.arange(0, w, step) + sinewave), rxs)
+ys = np.append(0.5 * (np.arange(0, h, step) ), rys)
 
 X = create_matrix(xs, ys)
 
 # U, Sigma, VT = svds(X, k=2, tol=0)
 U, Sigma, VT = np.linalg.svd(X, full_matrices=False)
 
+print('Eigenvalues = {}'.format(Sigma))
+
 S = eigenvalues_to_matrix(Sigma, U, VT)
 
-uv = np.dot(U, S)
-reconstruction = np.dot(uv, VT)
-print('X.shape = {}, U.shape = {}, Sigma.shape = {}, S.shape ={}, uv.shape = {}, VT.shape = {}, reconstruction = {}'.format(X.shape, U.shape, Sigma.shape, S.shape, uv.shape, VT.shape, reconstruction.shape))
+print("S =\n{}".format(S))
 
-# x,y = np.argwhere(X != 0).T
-ptx = np.asarray(reconstruction[0, :])[0]
-pty = np.asarray(reconstruction[1, :])[0]
+us = np.dot(U, S)
+reconstruction = np.dot(us, VT)
+print('X.shape = {}, U.shape = {}, Sigma.shape = {}, S.shape ={}, us.shape = {}, VT.shape = {}, reconstruction = {}'.format(X.shape, U.shape, Sigma.shape, S.shape, us.shape, VT.shape, reconstruction.shape))
+
+to_plot = reconstruction # np.dot(X, VT.transpose())
+ptx = np.asarray(to_plot[0, :])[0]
+pty = np.asarray(to_plot[1, :])[0]
 print('ptx.shape = {}, pty.shape = {}'.format(len(ptx), len(pty)))
 
 
