@@ -2,15 +2,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def createMatrix(xs, ys):
+def create_matrix(xs, ys):
     X = np.asmatrix(np.array([xs, ys]))
     C = np.dot(X, X.T)
     return X
 
+
 def eigenvalues_to_matrix(Sigma, U, VT):
-    S = np.diag(Sigma)
-    # S = np.zeros(shape=[U.shape[1], VT.shape[0]])
-    # S.itemset((0, 0), Sigma[0])
+    # S = np.diag(Sigma)
+    S = np.zeros(shape=[U.shape[1], VT.shape[0]])
+    S.itemset((1, 1), Sigma[1])
     return S
 
 
@@ -25,7 +26,7 @@ step = 1
 xs = np.append(w - np.arange(0, h, step), rxs)
 ys = np.append(0.5 * np.arange(0, h, step), rys)
 
-X = createMatrix(xs, ys)
+X = create_matrix(xs, ys)
 
 # U, Sigma, VT = svds(X, k=2, tol=0)
 U, Sigma, VT = np.linalg.svd(X, full_matrices=False)
