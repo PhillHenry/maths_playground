@@ -49,10 +49,11 @@ ptx = []
 pty = []
 
 for v in np.asarray(X):
-    v_ = np.dot(v, us.transpose())
-    print('v = {}, v_ = {}'.format(v, v_))
-    ptx.append(v_[0, 0])
-    pty.append(v_[0, 1])
+    v_ = np.asarray(np.dot(v, VT.transpose()))[0]
+    assert len(v) == 2
+    assert len(v_) == 2, len(v_)
+    ptx.append(v_[0])
+    pty.append(v_[1])
 
 print('ptx.shape = {}, pty.shape = {}'.format(len(ptx), len(pty)))
 
