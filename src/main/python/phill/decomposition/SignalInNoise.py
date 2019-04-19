@@ -2,6 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def create_large_matrix(xs, ys, w, h):
+    X = np.zeros(shape=(h, w))
+    for (x, y) in zip(xs, ys):
+        # print('x = {}, y ={}'.format(x, y))
+        X.itemset((x - 1, y - 1), 1)
+    return X
+
+
 def create_matrix(xs, ys):
     X = np.asmatrix(np.array([xs, ys]))
     C = np.dot(X, X.T)
@@ -24,13 +32,16 @@ rxs = np.random.randint(w, size=n)
 rys = np.random.randint(h, size=n)
 
 step = 2
-sinewave = np.sin(np.linspace(-np.pi, np.pi, (w/step))) * (h / 4)
-signal_x = w - (np.arange(0, w, step) + sinewave)
+distortion = np.sin(np.linspace(-np.pi, np.pi, (w / step))) * (h / 4)
+x_ints = map(lambda x: int(x), distortion)
+sinewave = filter(lambda x, y: x > 0 and x < w and y > 0 and y < h, x_ints)
+print(sinewave)
+signal_x = w - np.arange(0, w, step) #+ np.array(sinewave))
 signal_y = np.arange(0, h, step)
 xs = np.append(rxs, signal_x)
 ys = np.append(rys, signal_y)
 
-X = create_matrix(xs, ys)
+X = create_large_matrix(xs, ys, w, h)
 
 # U, Sigma, VT = svds(X, k=2, tol=0)
 U, Sigma, VT = np.linalg.svd(X, full_matrices=False)
@@ -49,10 +60,11 @@ ptx = []
 pty = []
 
 for v in np.asarray(X):
-    other = us.transpose()[np.ix_([0, 1], [0, 1])]
-    v_ = np.asarray(np.dot(v, other))[0]
-    assert len(v) == 2
-    assert len(v_) == 2, len(v_)
+    other = VT.transpose()
+    v_ = np.asarray(np.dot(v, other)) #[0]
+    # assert len(v) == 2
+    # assert len(v_) == 2, len(v_)
+    # print('v = {}, v_ = {}'.format(v, v_))
     ptx.append(v_[0])
     pty.append(v_[1])
 
@@ -69,6 +81,6 @@ noise_colours = np.empty(len(rxs))
 noise_colours.fill(0.9)
 colours = np.append(noise_colours, signal_colours)
 print('signal colours = {}, noise_colours = {}, total length = {}'.format(len(signal_colours), len(noise_colours), len(colours)))
-plt.scatter(ptx, pty, marker="+", c=colours)
+plt.scatter(ptx, pty, marker="+") #, c=colours)
 plt.show()
 print("finished")
