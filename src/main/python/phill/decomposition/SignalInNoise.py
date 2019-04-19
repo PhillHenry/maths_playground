@@ -9,9 +9,9 @@ def create_matrix(xs, ys):
 
 
 def eigenvalues_to_matrix(Sigma, U, VT):
-    # S = np.diag(Sigma)
-    S = np.zeros(shape=[U.shape[1], VT.shape[0]])
-    S.itemset((1, 1), Sigma[1])
+    S = np.diag(Sigma)
+    # S = np.zeros(shape=[U.shape[1], VT.shape[0]])
+    # S.itemset((1, 1), Sigma[1])
     return S
 
 
@@ -22,9 +22,11 @@ n = 500
 rxs = np.random.randint(w, size=n)
 rys = np.random.randint(h, size=n)
 
-step = 1
-xs = np.append(w - np.arange(0, h, step), rxs)
-ys = np.append(0.5 * np.arange(0, h, step), rys)
+step = 2
+sinewave = np.sin(np.linspace(-np.pi, np.pi, (w/step))) * (h / 4)
+print(sinewave)
+xs = np.append(w - np.arange(0, w, step), rxs)
+ys = np.append(0.5 * (np.arange(0, h, step) + sinewave), rys)
 
 X = create_matrix(xs, ys)
 
