@@ -26,7 +26,7 @@ rys = np.random.randint(h, size=n)
 step = 2
 sinewave = np.sin(np.linspace(-np.pi, np.pi, (w/step))) * (h / 4)
 signal_x = w - (np.arange(0, w, step) + sinewave)
-signal_y = 0.5 * (np.arange(0, h, step))
+signal_y = np.arange(0, h, step)
 xs = np.append(rxs, signal_x)
 ys = np.append(rys, signal_y)
 
@@ -49,7 +49,8 @@ ptx = []
 pty = []
 
 for v in np.asarray(X):
-    v_ = np.asarray(np.dot(v, VT.transpose()))[0]
+    other = us.transpose()[np.ix_([0, 1], [0, 1])]
+    v_ = np.asarray(np.dot(v, other))[0]
     assert len(v) == 2
     assert len(v_) == 2, len(v_)
     ptx.append(v_[0])
