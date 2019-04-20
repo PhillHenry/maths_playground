@@ -31,6 +31,10 @@ def to_ints(xs):
     return map(lambda x: int(x), xs)
 
 
+def crop(xs, limit):
+    return list(filter(lambda x: x > 0 and x < limit, xs))
+
+
 h = 100
 w = 100
 n = 500
@@ -40,10 +44,7 @@ rys = np.random.randint(h, size=n)
 
 step = 2
 distortion = np.sin(np.linspace(-np.pi, np.pi, (w / step))) * (h / 4)
-x_ints = map(lambda x: int(x), distortion)
-sinewave = filter(lambda x, y: x > 0 and x < w and y > 0 and y < h, x_ints)
-print(sinewave)
-signal_x = 0.5 * (w - np.arange(0, w, step)) #+ np.array(sinewave))
+signal_x = crop(0.5 * (w - np.arange(0, w, step)) + distortion, w)
 signal_y = np.arange(0, h, step)
 xs = np.append(rxs, signal_x)
 ys = np.append(rys, signal_y)
@@ -55,8 +56,8 @@ U, Sigma, VT = np.linalg.svd(X, full_matrices=False)
 
 print('Eigenvalues = {}'.format(Sigma))
 
-# S = eigenvalues_to_matrix(Sigma)
-S = top_eigenvalues_to_matrix(Sigma, U, VT, range(0, 1))
+S = eigenvalues_to_matrix(Sigma)
+# S = top_eigenvalues_to_matrix(Sigma, U, VT, range(0, 1))
 
 print("S =\n{}".format(S))
 
@@ -69,7 +70,7 @@ fig.add_subplot(121)
 plt.scatter(xs, ys, marker="+")
 fig.add_subplot(122)
 
-a = reconstruction #np.dot(X, us.transpose())
+a = np.dot(X, us.transpose())
 plt.imshow(a, cmap='hot', interpolation='nearest')
 
 plt.show()
