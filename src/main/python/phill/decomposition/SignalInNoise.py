@@ -12,7 +12,6 @@ def create_large_matrix(xs, ys, w, h):
 
 def create_matrix(xs, ys):
     X = np.asmatrix(np.array([xs, ys]))
-    C = np.dot(X, X.T)
     return X.transpose()
 
 
@@ -49,15 +48,16 @@ signal_y = np.arange(0, h, step)
 xs = np.append(rxs, signal_x)
 ys = np.append(rys, signal_y)
 
-X = create_large_matrix(to_ints(xs), to_ints(ys), w, h)
+# X = create_large_matrix(to_ints(xs), to_ints(ys), w, h)
+X = create_matrix(xs, ys)
 
 # U, Sigma, VT = svds(X, k=2, tol=0)
 U, Sigma, VT = np.linalg.svd(X, full_matrices=False)
 
 print('Eigenvalues = {}'.format(Sigma))
 
-S = eigenvalues_to_matrix(Sigma)
-# S = top_eigenvalues_to_matrix(Sigma, U, VT, range(0, 1))
+# S = eigenvalues_to_matrix(Sigma)
+S = top_eigenvalues_to_matrix(Sigma, U, VT, range(0, 2))
 
 print("S =\n{}".format(S))
 
@@ -70,8 +70,9 @@ fig.add_subplot(121)
 plt.scatter(xs, ys, marker="+")
 fig.add_subplot(122)
 
-a = np.dot(X, us.transpose())
-plt.imshow(a, cmap='hot', interpolation='nearest')
+a = reconstruction # np.dot(X, VT.transpose())
+# plt.imshow(a, cmap='hot', interpolation='nearest')
+plt.scatter(np.asarray(a[:,0]), np.asarray(a[:,1]), marker="+")
 
 plt.show()
 print("finished")
