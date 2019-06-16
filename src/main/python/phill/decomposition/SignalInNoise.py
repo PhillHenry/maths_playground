@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.decomposition import PCA
 
 
 def create_large_matrix(xs, ys, w, h):
@@ -48,8 +49,8 @@ signal_y = np.arange(0, h, step)
 xs = np.append(rxs, signal_x)
 ys = np.append(rys, signal_y)
 
-# X = create_large_matrix(to_ints(xs), to_ints(ys), w, h)
-X = create_matrix(xs, ys)
+X = create_large_matrix(to_ints(ys), to_ints(xs), w, h)
+# X = create_matrix(xs, ys)
 
 # U, Sigma, VT = svds(X, k=2, tol=0)
 U, Sigma, VT = np.linalg.svd(X, full_matrices=False)
@@ -57,7 +58,8 @@ U, Sigma, VT = np.linalg.svd(X, full_matrices=False)
 print('Eigenvalues = {}'.format(Sigma))
 
 # S = eigenvalues_to_matrix(Sigma)
-S = top_eigenvalues_to_matrix(Sigma, U, VT, range(0, 2))
+ks = range(0, int(Sigma.shape[0] / 4))
+S = top_eigenvalues_to_matrix(Sigma, U, VT, ks)
 
 print("S =\n{}".format(S))
 
@@ -67,12 +69,15 @@ print('X.shape = {}, U.shape = {}, Sigma.shape = {}, S.shape ={}, us.shape = {},
 
 fig = plt.figure(0)
 fig.add_subplot(121)
-plt.scatter(xs, ys, marker="+")
+# plt.scatter(xs, ys, marker="+")
+plt.imshow(X)
 fig.add_subplot(122)
 
 a = reconstruction # np.dot(X, VT.transpose())
 # plt.imshow(a, cmap='hot', interpolation='nearest')
-plt.scatter(np.asarray(a[:,0]), np.asarray(a[:,1]), marker="+")
+# plt.scatter(np.asarray(a[:,0]), np.asarray(a[:,1]), marker="+")
+
+plt.imshow(a) #, cmap='hot', interpolation='nearest')
 
 plt.show()
 print("finished")
