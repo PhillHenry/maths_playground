@@ -49,8 +49,8 @@ signal_y = np.arange(0, h, step)
 xs = np.append(rxs, signal_x)
 ys = np.append(rys, signal_y)
 
-# X = create_large_matrix(to_ints(ys), to_ints(xs), w, h)
-X = create_matrix(xs, ys)
+X = create_large_matrix(to_ints(ys), to_ints(xs), w, h)
+# X = create_matrix(xs, ys)
 
 # U, Sigma, VT = svds(X, k=2, tol=0)
 U, Sigma, VT = np.linalg.svd(X, full_matrices=True)
@@ -70,15 +70,14 @@ print('X.shape = {}, U.shape = {}, Sigma.shape = {}, S.shape ={}, us.shape = {},
 fig = plt.figure(0)
 fig.add_subplot(121)
 plt.title("Original")
-plt.scatter(xs, ys, marker="+")
-# plt.imshow(X)
+# plt.scatter(xs, ys, marker="+")
+plt.imshow(X)
 fig.add_subplot(122)
 
 a = reconstruction # np.dot(X, VT.transpose())
 # plt.imshow(a, cmap='hot', interpolation='nearest')
-plt.scatter(np.asarray(a[:,0]), np.asarray(a[:,1]), marker="+")
-
-# plt.imshow(a) #, cmap='hot', interpolation='nearest')
+# plt.scatter(np.asarray(a[:,0]), np.asarray(a[:,1]), marker="+")
+plt.imshow(a) #, cmap='hot', interpolation='nearest')
 
 plt.title("Reconstruction")
 
