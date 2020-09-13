@@ -6,7 +6,7 @@ import MyMayaviPlots as me
 
 
 def fun(mu, gamma, z):
-    return float(me.f.subs(me.x, mu).subs(me.y, gamma).subs(me.z, z).evalf())
+    return float(me.f.subs(me.X, mu).subs(me.y, gamma).subs(me.z, z).evalf())
 
 
 def create_fun_map(fun):

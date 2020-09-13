@@ -24,7 +24,7 @@ def phis():
         new_x = x_start + (alpha * d_x)
         new_y = y_start + (alpha * d_y)
         new_z = z_start + (alpha * d_z)
-        f_new = me.f.subs(me.x, new_x).subs(me.y, new_y).subs(me.z, new_z).evalf()
+        f_new = me.f.subs(me.X, new_x).subs(me.y, new_y).subs(me.z, new_z).evalf()
         xs.append(float(alpha) / float(steps))
         ys.append(f_new)
 
@@ -34,7 +34,7 @@ def phis():
 def armijo_vals(c1):
     xs = []
     ys = []
-    f0 = me.f.subs(me.x, x_start).subs(me.y, y_start).subs(me.z, z_start).evalf()
+    f0 = me.f.subs(me.X, x_start).subs(me.y, y_start).subs(me.z, z_start).evalf()
     p = np.array([x_start, y_start, z_start])
     div_f = me.gradient(x_start, y_start, z_start)
 
@@ -42,7 +42,7 @@ def armijo_vals(c1):
         new_x = x_start + (alpha * d_x)
         new_y = y_start + (alpha * d_y)
         new_z = z_start + (alpha * d_z)
-        f_new = me.f.subs(me.x, new_x).subs(me.y, new_y).subs(me.z, new_z).evalf()
+        f_new = me.f.subs(me.X, new_x).subs(me.y, new_y).subs(me.z, new_z).evalf()
         rhs = f0 + alpha * c1 * np.dot(np.matrix(div_f), p.transpose())
         if f_new <= rhs:
             xs.append(float(alpha) / float(steps))
@@ -65,7 +65,7 @@ def curvature_vals(c2):
         new_z = z_start + (alpha * d_z)
         div_f = me.gradient(new_x, new_y, new_z)
         lhs = np.dot(p.transpose(), div_f)
-        f_new = me.f.subs(me.x, new_x).subs(me.y, new_y).subs(me.z, new_z).evalf()
+        f_new = me.f.subs(me.X, new_x).subs(me.y, new_y).subs(me.z, new_z).evalf()
         if lhs <= rhs:
             xs.append(float(alpha) / float(steps))
             ys.append(f_new)
