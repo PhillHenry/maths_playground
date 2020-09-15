@@ -4,6 +4,7 @@ import matplotlib.pyplot as pl
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from os.path import expanduser
+import math
 
 # converted from https://github.com/p2t2/figaro/blob/7bdc7c26b011633b4e0a66decc068ffa6f8177f2/FigaroExamples/src/main/scala/com/cra/figaro/example/GaussianProcessTraining.scala
 
@@ -14,14 +15,8 @@ def plot(xs, ys, z, where, title):
     ax.plot_surface(x, y, z)
 
 
-def covariant_matrix_of(xs):
-    X = xs - np.mean(xs, axis=0)
-    C = np.dot(X, X.T)
-    return C
-
-
 def covariance_ls(i, j, xs, gamma):
-    return ((xs[i] - xs[j]) ** 2) * gamma
+    return math.exp(- ((xs[i] - xs[j]) ** 2) * gamma)
 
 
 def radial_basis_function_kernel(xs, gamma):
@@ -43,14 +38,21 @@ if __name__ == "__main__":
     ys = np.asmatrix(list(map(lambda x: (x ** 2) + gauss(0, 1), xs)))
     print("ys shape = ", np.shape(ys))
 
-    C = radial_basis_function_kernel(xs, 0.05)
+    C = radial_basis_function_kernel(xs, 1. / 2.0)
     print("C shape = ", np.shape(C))
+    print("C:\n", C)
 
-    invC = np.linalg.inv(C + (np.eye(len(xs)) * 0.001)) # https://javaagile.blogspot.com/2017/12/ridge-regression.html
+    bias = np.eye(len(xs)) * 0.001
+    print("bias:\n", bias)
+    invC = np.linalg.inv(C + bias)  # https://javaagile.blogspot.com/2017/12/ridge-regression.html
+    print("C * invC\n", np.dot((C + bias), invC))
+
     print("invC shape = ", np.shape(invC))
+    print("invC:\n", invC)
 
-    alpha = np.multiply(invC, np.transpose(ys))
+    alpha = np.dot(invC, ys)
     print("alpha shape = ", np.shape(alpha))
+    print("alpha:\n", alpha)
 
     pl.figure()
     heat_map(C, "/m_covariance_fn.png")
