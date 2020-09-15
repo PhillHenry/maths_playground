@@ -9,14 +9,14 @@ import math
 # converted from https://github.com/p2t2/figaro/blob/7bdc7c26b011633b4e0a66decc068ffa6f8177f2/FigaroExamples/src/main/scala/com/cra/figaro/example/GaussianProcessTraining.scala
 
 
-def plot(xs, ys, z, where, title):
-    x, y = np.meshgrid(xs, ys)
-    ax = pl.subplot(where, projection='3d', title=title)
-    ax.plot_surface(x, y, z)
-
-
 def covariance_ls(i, j, xs, gamma):
-    return math.exp(- ((xs[i] - xs[j]) ** 2) * gamma)
+    x = xs[i]
+    y = xs[j]
+    return covariance_fn(x, y, gamma)
+
+
+def covariance_fn(x, y, gamma):
+    return math.exp(- ((x - y) ** 2) * gamma)
 
 
 def radial_basis_function_kernel(xs, gamma):
@@ -33,14 +33,24 @@ def heat_map(m, file):
     pl.clf()
 
 
-if __name__ == "__main__":
-    xs = np.arange(1, 11).reshape([10, 1])
-    ys = np.asmatrix(list(map(lambda x: (x ** 2) + gauss(0, 1), xs)))
+def variance_of(xs):
+    print("variance_of xs = ", xs)
+    return np.asmatrix(list(map(lambda x: (x ** 2) + gauss(0, 1), xs)))
+
+
+def responses_from(xs):
+    ys = variance_of(xs)
     print("ys shape = ", np.shape(ys))
     prior = np.sum(ys, axis=0) / len(xs)
-    responses = ys - prior
+    return ys - prior
 
-    C = radial_basis_function_kernel(xs, 1. / 2.0)
+
+if __name__ == "__main__":
+    xs = np.arange(1, 11).reshape([10, 1])
+    responses = responses_from(xs)
+
+    gamma = 1. / 2.0
+    C = radial_basis_function_kernel(xs, gamma)
     print("C shape = ", np.shape(C))
     print("C:\n", C)
 
@@ -62,3 +72,17 @@ if __name__ == "__main__":
     heat_map(invC, "/m_inv_covariance_fn.png")
     heat_map(alpha, "/m_alpha.png")
 
+    n = np.size(xs)
+    new_co = list(map(lambda x: covariance_fn(x, 7.5, gamma), xs))
+    newCovariance = np.asmatrix(new_co).reshape([1, 10])
+    new_dot_old = np.dot(newCovariance, invC)
+    print("new_dot_old: ", new_dot_old)
+    print("newCovariance: ", newCovariance)
+    product = np.dot(new_dot_old, np.transpose(newCovariance))
+    print("variance: ", np.shape(product))
+    variance = 1. - product[0, 0]
+    mean_matrix = np.dot(newCovariance, np.transpose(alpha))
+    print("mean_matrix = ", mean_matrix)
+    mean = mean_matrix[0, 0]
+    print("mean = ", mean)
+    print("variance = ", variance)
