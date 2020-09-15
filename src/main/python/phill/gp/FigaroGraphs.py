@@ -37,6 +37,8 @@ if __name__ == "__main__":
     xs = np.arange(1, 11).reshape([10, 1])
     ys = np.asmatrix(list(map(lambda x: (x ** 2) + gauss(0, 1), xs)))
     print("ys shape = ", np.shape(ys))
+    prior = np.sum(ys, axis=0) / len(xs)
+    responses = ys - prior
 
     C = radial_basis_function_kernel(xs, 1. / 2.0)
     print("C shape = ", np.shape(C))
@@ -50,7 +52,8 @@ if __name__ == "__main__":
     print("invC shape = ", np.shape(invC))
     print("invC:\n", invC)
 
-    alpha = np.dot(invC, ys)
+    print("responses:\n", responses)
+    alpha = np.sum(np.multiply(invC, np.transpose(responses)), axis=0)
     print("alpha shape = ", np.shape(alpha))
     print("alpha:\n", alpha)
 
