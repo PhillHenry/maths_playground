@@ -72,7 +72,6 @@ if __name__ == "__main__":
     heat_map(invC, "/m_inv_covariance_fn.png")
     heat_map(alpha, "/m_alpha.png")
 
-    n = np.size(xs)
     new_co = list(map(lambda x: covariance_fn(x, 7.5, gamma), xs))
     newCovariance = np.asmatrix(new_co).reshape([1, 10])
     new_dot_old = np.dot(newCovariance, invC)
